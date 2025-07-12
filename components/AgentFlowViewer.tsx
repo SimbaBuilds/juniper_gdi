@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bot, Users, MessageSquare, BarChart3, Filter } from 'lucide-react';
+import { Bot, MessageSquare, Filter } from 'lucide-react';
 import { AgentFlowStep } from '@/components/AgentFlowStep';
 import { AgentConversation, FlowViewOptions } from '@/lib/types';
 
@@ -73,8 +71,8 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
 
   if (conversations.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-8">
-        <Bot className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+      <div className="text-center text-muted-foreground py-8">
+        <Bot className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
         <p>No agent conversations found in the log data.</p>
       </div>
     );
@@ -87,25 +85,25 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-blue-600">{stats.totalConversations}</div>
-            <div className="text-sm text-gray-600">Conversations</div>
+            <div className="text-sm text-muted-foreground">Conversations</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600">{stats.totalSteps}</div>
-            <div className="text-sm text-gray-600">Total Steps</div>
+            <div className="text-sm text-muted-foreground">Total Steps</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-purple-600">{stats.uniqueAgents}</div>
-            <div className="text-sm text-gray-600">Agents</div>
+            <div className="text-sm text-muted-foreground">Agents</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-red-600">{stats.totalErrors}</div>
-            <div className="text-sm text-gray-600">Errors</div>
+            <div className="text-sm text-muted-foreground">Errors</div>
           </CardContent>
         </Card>
       </div>
@@ -138,8 +136,8 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                           key={conv.id}
                           className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                             selectedConversation === conv.id 
-                              ? 'border-blue-500 bg-blue-50' 
-                              : 'border-gray-200 hover:border-gray-300'
+                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' 
+                              : 'border-border hover:border-border/80'
                           }`}
                           onClick={() => setSelectedConversation(conv.id)}
                         >
@@ -158,7 +156,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                             <div className="font-medium truncate">
                               {conv.request_id || conv.id}
                             </div>
-                            <div className="text-gray-600 text-xs mt-1">
+                            <div className="text-muted-foreground text-xs mt-1">
                               {new Date(conv.start_time).toLocaleString()}
                             </div>
                           </div>
@@ -257,7 +255,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 {selectedConv ? (
                   <div className="space-y-4">
                     {filteredSteps.length === 0 ? (
-                      <div className="text-center text-gray-500 py-8">
+                      <div className="text-center text-muted-foreground py-8">
                         No steps match the current filters.
                       </div>
                     ) : (
@@ -271,7 +269,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                     )}
                   </div>
                 ) : (
-                  <div className="text-center text-gray-500 py-8">
+                  <div className="text-center text-muted-foreground py-8">
                     Select a conversation to view its flow.
                   </div>
                 )}

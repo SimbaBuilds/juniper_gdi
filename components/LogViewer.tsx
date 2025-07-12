@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, FileText, BarChart3, Settings, Bot, GitBranch } from 'lucide-react';
+import { Upload, FileText, BarChart3, Settings, GitBranch, Moon, Sun } from 'lucide-react';
 import { LogEntry } from '@/components/LogEntry';
 import { LogFilters } from '@/components/LogFilters';
 import { LogStats } from '@/components/LogStats';
@@ -14,6 +14,7 @@ import { useLogParser } from '@/hooks/useLogParser';
 import { useLogFilter } from '@/hooks/useLogFilter';
 import { useLogStats } from '@/hooks/useLogStats';
 import { useAgentFlowParser } from '@/hooks/useAgentFlowParser';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import { LogFilterOptions } from '@/lib/types';
 
 export function LogViewer() {
@@ -23,6 +24,7 @@ export function LogViewer() {
   const [mainTab, setMainTab] = useState('logs');
   const [availableLogFiles, setAvailableLogFiles] = useState<string[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(false);
+  const { isDark, toggleDarkMode } = useDarkMode();
   
   const [filters, setFilters] = useState<LogFilterOptions>({
     levels: [],
@@ -41,14 +43,9 @@ export function LogViewer() {
   const { entries, isLoading, error } = useLogParser(logData);
   const { filteredEntries, availableFilters } = useLogFilter(entries, filters);
   const stats = useLogStats(filteredEntries);
-  const { conversations, isLoading: flowLoading, error: flowError } = useAgentFlowParser(logData);
+  const { conversations } = useAgentFlowParser(logData);
 
-  // Load available log files and first log on component mount
-  useEffect(() => {
-    loadAvailableLogFiles();
-  }, []);
-
-  const loadAvailableLogFiles = async () => {
+  const loadAvailableLogFiles = useCallback(async () => {
     setLoadingFiles(true);
     try {
       const response = await fetch('/api/logs');
@@ -68,7 +65,12 @@ export function LogViewer() {
     } finally {
       setLoadingFiles(false);
     }
-  };
+  }, []);
+
+  // Load available log files and first log on component mount
+  useEffect(() => {
+    loadAvailableLogFiles();
+  }, [loadAvailableLogFiles]);
 
   const loadLogFile = async (filename: string) => {
     try {
@@ -122,9 +124,20 @@ export function LogViewer() {
   if (availableLogFiles.length === 0 && !logData) {
     return (
       <div className="container mx-auto p-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Log Viewer GDI</h1>
-          <p className="text-gray-600">Intuitive viewing of structured JSON logs</p>
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Log Viewer GDI</h1>
+            <p className="text-muted-foreground">Intuitive viewing of structured JSON logs</p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={toggleDarkMode}
+            className="h-9 w-9 p-0"
+            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
         </div>
         
         <Card>
@@ -136,9 +149,9 @@ export function LogViewer() {
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
-              <div className="text-lg text-gray-600 mb-4">No log files found in the logs directory</div>
-              <div className="text-sm text-gray-500 mb-4">
-                Please add .log files to the <code className="bg-gray-100 px-2 py-1 rounded">logs/</code> directory or upload a file
+              <div className="text-lg text-muted-foreground mb-4">No log files found in the logs directory</div>
+              <div className="text-sm text-muted-foreground mb-4">
+                Please add .log files to the <code className="bg-muted px-2 py-1 rounded">logs/</code> directory or upload a file
               </div>
               <input
                 type="file"
@@ -155,9 +168,20 @@ export function LogViewer() {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Log Viewer GDI</h1>
-        <p className="text-gray-600">Intuitive viewing of structured JSON logs</p>
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Juniper GDI</h1>
+          <p className="text-muted-foreground">Intuitive viewing of structured JSON logs</p>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={toggleDarkMode}
+          className="h-9 w-9 p-0"
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </Button>
       </div>
 
       {/* File Upload */}
@@ -179,7 +203,7 @@ export function LogViewer() {
             
             {availableLogFiles.length > 0 && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Available logs:</span>
+                <span className="text-sm text-muted-foreground">Available logs:</span>
                 {availableLogFiles.map(file => (
                   <Button
                     key={file}
@@ -198,7 +222,7 @@ export function LogViewer() {
             </Button>
             
             {fileName && (
-              <span className="text-sm text-gray-600 flex items-center gap-1">
+              <span className="text-sm text-muted-foreground flex items-center gap-1">
                 <FileText className="w-4 h-4" />
                 Currently viewing: {fileName}
               </span>
@@ -260,7 +284,7 @@ export function LogViewer() {
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>Log Entries</span>
-                      <span className="text-sm font-normal text-gray-600">
+                      <span className="text-sm font-normal text-muted-foreground">
                         {filteredEntries.length} of {entries.length} entries
                       </span>
                     </CardTitle>
@@ -269,7 +293,7 @@ export function LogViewer() {
                     <ScrollArea className="h-[calc(100vh-250px)]">
                       <div className="space-y-2">
                         {filteredEntries.length === 0 ? (
-                          <div className="text-center text-gray-500 py-8">
+                          <div className="text-center text-muted-foreground py-8">
                             No log entries match the current filters.
                           </div>
                         ) : (

@@ -50,7 +50,13 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
   const conversationMap = new Map<string, AgentConversation>();
   
   logEntries.forEach((entry, index) => {
-    const conversationId = entry.request_id || entry.user_id || `conversation_${index}`;
+    // Use request_id if available, otherwise group by user_id, skip entries without either
+    const conversationId = entry.request_id || (entry.user_id ? `user_${entry.user_id}` : null);
+    
+    if (!conversationId) {
+      // Skip logs that don't belong to a user session or specific request
+      return;
+    }
     
     if (!conversationMap.has(conversationId)) {
       conversationMap.set(conversationId, {
@@ -106,7 +112,27 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
 function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null {
   const stepId = `step_${index}`;
   
-  // Determine step type based on log content
+  // Filter out routine system logs that don't represent meaningful agent actions
+  const routinePatterns = [
+    'Settings updated:',
+    'Integration in progress:',
+    'Successfully processed chat response',
+    'Using user\'s preferred model:',
+    'User search config:',
+    'Processing chat request -',
+    'thought match:',
+    'action match:',
+    'observation match:',
+    'response match:',
+    'processing complete response'
+  ];
+  
+  // Skip routine system messages
+  if (routinePatterns.some(pattern => entry.message.includes(pattern))) {
+    return null;
+  }
+  
+  // Only include meaningful entries
   let stepType: AgentStep['type'] = 'agent_response';
   let title = '';
   let content = entry.message;
@@ -117,21 +143,43 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
   } else if (entry.message.includes('system prompt') || entry.action === 'agent_initialization') {
     stepType = 'system_prompt';
     title = 'System Prompt';
-  } else if (entry.message.includes('API') || entry.message.includes('request') || 
-             entry.message.includes('database') || entry.action?.includes('search')) {
+  } else if (entry.action?.includes('search') || entry.message.includes('semantic search') ||
+             entry.message.includes('database search')) {
     stepType = 'tool_execution';
-    title = extractToolName(entry.message) || 'Tool Execution';
-  } else if (entry.message.includes('resource') || entry.action?.includes('resource') ||
-             entry.message.includes('embedding') || entry.action?.includes('retrieval')) {
+    title = extractToolName(entry.message) || 'Search Operation';
+  } else if (entry.action?.includes('resource') || entry.action?.includes('retrieval') ||
+             entry.message.includes('auto-context')) {
     stepType = 'resource_retrieval';
     title = 'Resource Retrieval';
-  } else if (entry.message.includes('response') || entry.action?.includes('response') ||
-             entry.message.includes('Agent') || entry.agent_name) {
+  } else if (entry.message.includes('model response:')) {
     stepType = 'agent_response';
     title = `${entry.agent_name || 'Agent'} Response`;
+  } else if (entry.action?.includes('query_start') || entry.message.includes('Starting query processing')) {
+    stepType = 'system_prompt';
+    title = 'Query Started';
   } else {
-    // Skip entries that don't fit our flow categories
+    // Skip other entries that don't represent key agent flow steps
     return null;
+  }
+
+  // Extract structured content for better display
+  let extractedContent = extractAgentContent(entry.message);
+  
+  // For non-model-response entries, create more meaningful content
+  if (!extractedContent.thought && !extractedContent.action && !extractedContent.response) {
+    if (stepType === 'system_prompt' && entry.action === 'query_start') {
+      extractedContent = {
+        response: `Started processing query for user ${entry.user_id?.slice(-8) || 'unknown'} in request ${entry.request_id || 'session'}`
+      };
+    } else if (stepType === 'resource_retrieval') {
+      extractedContent = {
+        action: entry.message
+      };
+    } else if (stepType === 'tool_execution') {
+      extractedContent = {
+        action: entry.message
+      };
+    }
   }
 
   return {
@@ -141,6 +189,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     agent_name: entry.agent_name,
     title,
     content,
+    extractedContent,
     details: {
       logger: entry.logger,
       module: entry.module,
@@ -177,4 +226,52 @@ function extractToolName(message: string): string | null {
   }
   
   return null;
+}
+
+interface AgentResponseContent {
+  thought?: string;
+  action?: string;
+  observation?: string;
+  response?: string;
+  fullContent?: string;
+}
+
+function extractAgentContent(message: string): AgentResponseContent {
+  // Extract structured content from agent model responses
+  if (!message.includes('model response:')) {
+    return { fullContent: message };
+  }
+
+  const content = message.split('model response:')[1]?.trim();
+  if (!content) {
+    return { fullContent: message };
+  }
+
+  const result: AgentResponseContent = { fullContent: content };
+
+  // Extract thought section
+  const thoughtMatch = content.match(/Thought:\s*([^\n]*(?:\n(?!(?:Action|Observation|Response):)[^\n]*)*)/);
+  if (thoughtMatch) {
+    result.thought = thoughtMatch[1].trim();
+  }
+
+  // Extract action section
+  const actionMatch = content.match(/Action:\s*([^\n]*(?:\n(?!(?:Thought|Observation|Response):)[^\n]*)*)/);
+  if (actionMatch) {
+    result.action = actionMatch[1].trim();
+  }
+
+  // Extract observation section
+  const observationMatch = content.match(/Observation:\s*([^\n]*(?:\n(?!(?:Thought|Action|Response):)[^\n]*)*)/);
+  if (observationMatch) {
+    result.observation = observationMatch[1].trim();
+  }
+
+  // Extract response section
+  const responseMatch = content.match(/Response:\s*([^\n]*(?:\n(?!(?:Thought|Action|Observation):)[^\n]*)*)/);
+  if (responseMatch) {
+    result.response = responseMatch[1].trim();
+  }
+
+  return result;
 }

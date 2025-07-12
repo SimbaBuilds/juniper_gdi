@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronRight, Clock, User, Bot, Cog, Database, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ChevronDown, ChevronRight, Clock, Bot, Cog, Database, AlertTriangle, CheckCircle } from 'lucide-react';
 import { AgentStep } from '@/lib/types';
 
 interface AgentFlowStepProps {
@@ -72,14 +72,14 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
   return (
     <div className="relative">
       {/* Timeline connector */}
-      <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-gray-200"></div>
+      <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-border"></div>
       
       <Card className="ml-12 mb-4 transition-all duration-200 hover:shadow-md">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {/* Step number circle */}
-              <div className="absolute -left-6 w-8 h-8 bg-white border-2 border-gray-300 rounded-full flex items-center justify-center text-sm font-medium">
+              <div className="absolute -left-6 w-8 h-8 bg-background border-2 border-border rounded-full flex items-center justify-center text-sm font-medium">
                 {stepNumber}
               </div>
               
@@ -101,7 +101,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
             </div>
             
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 flex items-center gap-1">
+              <span className="text-sm text-muted-foreground flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {formatTimestamp(step.timestamp)}
               </span>
@@ -117,9 +117,43 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
         </CardHeader>
         
         <CardContent className="pt-0">
-          <div className="space-y-2">
-            <h3 className="font-medium text-gray-900">{step.title}</h3>
-            <p className="text-sm text-gray-700">{step.content}</p>
+          <div className="space-y-3">
+            <h3 className="font-medium">{step.title}</h3>
+            
+            {/* Show structured content if available */}
+            {step.extractedContent && (step.extractedContent.thought || step.extractedContent.action || step.extractedContent.response) ? (
+              <div className="space-y-3">
+                {step.extractedContent.thought && (
+                  <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg border-l-4 border-blue-400">
+                    <div className="font-medium text-sm text-blue-800 dark:text-blue-300 mb-1">🤔 Thought</div>
+                    <p className="text-sm text-blue-700 dark:text-blue-200">{step.extractedContent.thought}</p>
+                  </div>
+                )}
+                
+                {step.extractedContent.action && (
+                  <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border-l-4 border-green-400">
+                    <div className="font-medium text-sm text-green-800 dark:text-green-300 mb-1">⚡ Action</div>
+                    <p className="text-sm text-green-700 dark:text-green-200">{step.extractedContent.action}</p>
+                  </div>
+                )}
+                
+                {step.extractedContent.observation && (
+                  <div className="bg-orange-50 dark:bg-orange-950/30 p-3 rounded-lg border-l-4 border-orange-400">
+                    <div className="font-medium text-sm text-orange-800 dark:text-orange-300 mb-1">👁️ Observation</div>
+                    <p className="text-sm text-orange-700 dark:text-orange-200">{step.extractedContent.observation}</p>
+                  </div>
+                )}
+                
+                {step.extractedContent.response && (
+                  <div className="bg-purple-50 dark:bg-purple-950/30 p-3 rounded-lg border-l-4 border-purple-400">
+                    <div className="font-medium text-sm text-purple-800 dark:text-purple-300 mb-1">💬 Response</div>
+                    <p className="text-sm text-purple-700 dark:text-purple-200">{step.extractedContent.response}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">{step.content}</p>
+            )}
             
             {expanded && step.details && (
               <div className="mt-4 space-y-3 border-t pt-4">
@@ -127,42 +161,42 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                   {step.details.logger && (
                     <div>
                       <span className="font-medium">Logger:</span>
-                      <p className="text-gray-600">{step.details.logger}</p>
+                      <p className="text-muted-foreground">{step.details.logger}</p>
                     </div>
                   )}
                   
                   {step.details.module && (
                     <div>
                       <span className="font-medium">Module:</span>
-                      <p className="text-gray-600">{step.details.module}</p>
+                      <p className="text-muted-foreground">{step.details.module}</p>
                     </div>
                   )}
                   
                   {step.details.funcName && (
                     <div>
                       <span className="font-medium">Function:</span>
-                      <p className="text-gray-600">{step.details.funcName}</p>
+                      <p className="text-muted-foreground">{step.details.funcName}</p>
                     </div>
                   )}
                   
                   {step.details.component && (
                     <div>
                       <span className="font-medium">Component:</span>
-                      <p className="text-gray-600">{step.details.component}</p>
+                      <p className="text-muted-foreground">{step.details.component}</p>
                     </div>
                   )}
                   
                   {step.details.action && (
                     <div>
                       <span className="font-medium">Action:</span>
-                      <p className="text-gray-600">{step.details.action}</p>
+                      <p className="text-muted-foreground">{step.details.action}</p>
                     </div>
                   )}
                   
                   {step.request_id && (
                     <div>
                       <span className="font-medium">Request ID:</span>
-                      <p className="text-gray-600 break-all">{step.request_id}</p>
+                      <p className="text-muted-foreground break-all">{step.request_id}</p>
                     </div>
                   )}
                 </div>
@@ -179,7 +213,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                 {step.details.pathname && (
                   <div className="mt-4">
                     <span className="font-medium">Source:</span>
-                    <p className="text-xs text-gray-600 break-all">
+                    <p className="text-xs text-muted-foreground break-all">
                       {step.details.pathname}:{step.details.lineno}
                     </p>
                   </div>

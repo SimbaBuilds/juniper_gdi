@@ -28,9 +28,9 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
       case 'INFO':
         return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'DEBUG':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-muted text-muted-foreground border-border';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -63,7 +63,7 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
       agent_outputs: 'bg-indigo-100 text-indigo-800',
       errors_warnings: 'bg-red-100 text-red-800'
     };
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[category as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   return (
@@ -85,7 +85,7 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
               {entry.level}
             </Badge>
             
-            <span className="text-sm text-gray-600 flex items-center gap-1">
+            <span className="text-sm text-muted-foreground flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {formatTimestamp(entry.timestamp)}
             </span>
@@ -115,11 +115,11 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
       <CardContent className="pt-0">
         <div className="space-y-2">
           <div className="flex items-start gap-2">
-            <span className="text-sm font-medium text-gray-700">Message:</span>
-            <span className="text-sm text-gray-900 flex-1">{entry.message}</span>
+            <span className="text-sm font-medium">Message:</span>
+            <span className="text-sm flex-1">{entry.message}</span>
           </div>
           
-          <div className="flex items-center gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>Logger: {entry.logger}</span>
             <span>Module: {entry.module}</span>
             <span>Function: {entry.funcName}</span>
@@ -130,38 +130,38 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="font-medium">Pathname:</span>
-                  <p className="text-gray-600 break-all">{entry.pathname}</p>
+                  <p className="text-muted-foreground break-all">{entry.pathname}</p>
                 </div>
                 <div>
                   <span className="font-medium">Line:</span>
-                  <p className="text-gray-600">{entry.lineno}</p>
+                  <p className="text-muted-foreground">{entry.lineno}</p>
                 </div>
                 
                 {entry.component && (
                   <div>
                     <span className="font-medium">Component:</span>
-                    <p className="text-gray-600">{entry.component}</p>
+                    <p className="text-muted-foreground">{entry.component}</p>
                   </div>
                 )}
                 
                 {entry.action && (
                   <div>
                     <span className="font-medium">Action:</span>
-                    <p className="text-gray-600">{entry.action}</p>
+                    <p className="text-muted-foreground">{entry.action}</p>
                   </div>
                 )}
                 
                 {entry.agent_name && (
                   <div>
                     <span className="font-medium">Agent:</span>
-                    <p className="text-gray-600">{entry.agent_name}</p>
+                    <p className="text-muted-foreground">{entry.agent_name}</p>
                   </div>
                 )}
                 
                 {entry.request_id && (
                   <div>
                     <span className="font-medium">Request ID:</span>
-                    <p className="text-gray-600 break-all">{entry.request_id}</p>
+                    <p className="text-muted-foreground break-all">{entry.request_id}</p>
                   </div>
                 )}
               </div>
@@ -177,7 +177,7 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
               
               <div className="mt-4">
                 <span className="font-medium">Raw JSON:</span>
-                <pre className="text-xs bg-gray-50 p-2 rounded mt-1 overflow-x-auto">
+                <pre className="text-xs bg-muted p-2 rounded mt-1 overflow-x-auto">
                   {JSON.stringify(entry, null, 2)}
                 </pre>
               </div>

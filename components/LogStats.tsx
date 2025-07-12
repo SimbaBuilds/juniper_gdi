@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, AlertCircle, Clock, Activity } from 'lucide-react';
+import { BarChart3, Clock, Activity } from 'lucide-react';
 import { LogStats as LogStatsType } from '@/lib/types';
 import { useLogMetrics } from '@/hooks/useLogStats';
 import { LogEntry } from '@/lib/types';
@@ -45,27 +45,27 @@ export function LogStats({ stats, entries }: LogStatsProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-              <div className="text-sm text-gray-600">Total Logs</div>
+              <div className="text-sm text-muted-foreground">Total Logs</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-red-600">{formatPercentage(stats.errorRate)}</div>
-              <div className="text-sm text-gray-600">Error Rate</div>
+              <div className="text-sm text-muted-foreground">Error Rate</div>
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-lg font-bold text-green-600">{metrics.uniqueUsers}</div>
-              <div className="text-sm text-gray-600">Unique Users</div>
+              <div className="text-sm text-muted-foreground">Unique Users</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-bold text-purple-600">{metrics.uniqueRequests}</div>
-              <div className="text-sm text-gray-600">Unique Requests</div>
+              <div className="text-sm text-muted-foreground">Unique Requests</div>
             </div>
           </div>
           
           <div className="text-center">
-            <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
+            <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
               <Clock className="w-4 h-4" />
               Duration: {formatTimeRange(stats.timeRange.start, stats.timeRange.end)}
             </div>

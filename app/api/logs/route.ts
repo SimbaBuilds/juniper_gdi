@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         const files = await fs.readdir(logsDir);
         const logFiles = files.filter(file => file.endsWith('.log'));
         return NextResponse.json({ files: logFiles });
-      } catch (error) {
+      } catch {
         return NextResponse.json({ error: 'Logs directory not found', files: [] });
       }
     }
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         content: fileContent, 
         filename: filename 
       });
-    } catch (error) {
+    } catch {
       return NextResponse.json({ 
         error: `File not found: ${filename}` 
       }, { status: 404 });

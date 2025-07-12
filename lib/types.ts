@@ -17,6 +17,36 @@ export interface LogEntry {
   [key: string]: any;
 }
 
+export interface LogFilterOptions {
+  levels: string[];
+  loggers: string[];
+  components: string[];
+  agents: string[];
+  timeRange: {
+    start?: string;
+    end?: string;
+  };
+  searchTerm: string;
+  showSystemPrompts: boolean;
+  showToolExecutions: boolean;
+  showResourceOperations: boolean;
+  showAgentOutputs: boolean;
+  showErrors: boolean;
+}
+
+export interface LogStats {
+  total: number;
+  byLevel: Record<string, number>;
+  byLogger: Record<string, number>;
+  byComponent: Record<string, number>;
+  byAgent: Record<string, number>;
+  errorRate: number;
+  timeRange: {
+    start: string;
+    end: string;
+  };
+}
+
 // Agent Flow specific types
 export interface AgentStep {
   id: string;
@@ -30,6 +60,13 @@ export interface AgentStep {
   request_id?: string;
   duration?: number;
   status?: 'success' | 'error' | 'pending';
+  extractedContent?: {
+    thought?: string;
+    action?: string;
+    observation?: string;
+    response?: string;
+    fullContent?: string;
+  };
 }
 
 export interface AgentConversation {
