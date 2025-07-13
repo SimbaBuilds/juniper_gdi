@@ -8,6 +8,7 @@ interface AgentResponseContent {
   response?: string;
   fullContent?: string;
   systemPrompt?: string;
+  service_name?: string;
   associatedResources?: Array<{
     id: string;
     title: string;
@@ -166,6 +167,11 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
 function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null {
   const stepId = `step_${index}`;
 
+  // Skip duplicates first - "Adding observation to messages" entries are always duplicates
+  if (entry.message.includes('Adding observation to messages:')) {
+    return null;
+  }
+
   // 1. TRUE SYSTEM PROMPT: Only include if a dedicated field or clear message
   if (entry.system_prompt || (typeof entry.message === 'string' && entry.message.trim().toLowerCase().startsWith('system prompt:'))) {
     const promptText = entry.system_prompt || entry.message.replace(/^System Prompt:/i, '').trim();
@@ -200,82 +206,68 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     };
   }
 
-  // STRICT FILTERING: Only include meaningful agent reasoning steps
-  const infrastructurePatterns = [
-    // Authentication & Security
-    '=== Authentication successful ===',
-    // HTTP Request Processing
-    'Received chat request:',
-    'Processing chat request -',
-    'Successfully processed chat response',
-    'Request completed:',
-    // Settings & Configuration
-    'Settings updated:',
-    'Integration in progress:',
-    'Using user\'s preferred model:',
-    'User search config:',
-    // Model Provider Infrastructure
-    'Initialized AnthropicProvider',
-    'Generated response from AnthropicProvider',
-    // Agent Infrastructure (not reasoning)
-    'Agent initialized with system prompt',
-    'Starting query processing',
-    'Query completed successfully',
-    'Agent produced observation',
-    'Agent produced final response',
-    // Processing Steps (internal mechanics)
-    'processing actions from response',
-    'generating model response with',
-    'Adding observation to messages:',
-    'generated response from',
-    'Generated response from',
-    'Action 1/5 executed',
-    'Action 2/8 executed', 
-    'Action 3/8 executed',
-    'Action 4/8 executed',
-    'Action 5/8 executed',
-    'Action 1/8 executed',
-    'Action 2/8 executed',
-    'Action 3/8 executed',
-    'Action 4/8 executed',
-    'Action 5/8 executed',
-    'Action 6/8 executed',
-    'Action 7/8 executed',
-    'Action 8/8 executed',
-    // Pattern Matching Logs (debugging info)
-    'thought match:',
-    'action match:',
-    'observation match:', 
-    'response match:',
-    'processing mid-process response',
-    'processing final response',
-    'processing actions from response',
-    // Integration Script Management
-    'Added integration script tags',
-    'integration script tags added'
-  ];
-  
-  // Skip ALL infrastructure messages - be very strict
-  if (infrastructurePatterns.some(pattern => entry.message.includes(pattern))) {
-    return null;
-  }
-  
-  // Skip logs that don't have agent context (pure infrastructure)
-  if (!entry.agent_name && !entry.message.includes('model response:') && 
-      !entry.message.includes('Observation:') && !entry.action?.includes('service_tool') &&
-      !entry.message.includes('Tool:') && entry.level !== 'ERROR') {
-    return null;
-  }
-  
-  // Skip logs from non-agent components (unless they're errors)
-  const nonAgentLoggers = [
-    'app.auth',
-    'app.endpoints.chat', 
-    'app.main'
-  ];
-  
-  if (nonAgentLoggers.includes(entry.logger) && entry.level !== 'ERROR') {
-    return null;
+  // FIRST: Check for important content that should always be included
+  const shouldInclude = (
+    // Agent model responses (core reasoning)
+    entry.message.includes('model response:') ||
+    // Resource-related observations
+    entry.message.includes('Associated Resources:') ||
+    entry.message.includes('Observation: Observation: Available service tools:') ||
+    entry.message.includes('[Memory Resources]') ||
+    // Tool executions
+    entry.message.includes('Executing service tool') ||
+    entry.message.includes('Successfully executed service tool') ||
+    entry.message.includes('Tool:') && entry.message.includes('Parameters:') ||
+    // Resource fetching
+    entry.message.includes('Fetching truncated resources') ||
+    entry.message.includes('Found') && entry.message.includes('truncated resources') ||
+    entry.message.includes('Added') && entry.message.includes('integration script tags') ||
+    // Errors
+    entry.level === 'ERROR' ||
+    entry.message.toLowerCase().includes('failed') ||
+    entry.message.toLowerCase().includes('error')
+  );
+
+  if (!shouldInclude) {
+    // Skip infrastructure messages
+    const infrastructurePatterns = [
+      '=== Authentication successful ===',
+      'Received chat request:',
+      'Processing chat request -',
+      'Successfully processed chat response',
+      'Request completed:',
+      'Settings updated:',
+      'Integration in progress:',
+      'Using user\'s preferred model:',
+      'User search config:',
+      'Initialized AnthropicProvider',
+      'Generated response from AnthropicProvider',
+      'Agent initialized with system prompt',
+      'Starting query processing',
+      'Query completed successfully',
+      'Agent produced observation',
+      'Agent produced final response',
+      'processing actions from response',
+      'generating model response with',
+      'Adding observation to messages:',
+      'generated response from',
+      'Generated response from',
+      'Action 1/', 'Action 2/', 'Action 3/', 'Action 4/', 'Action 5/',
+      'Action 6/', 'Action 7/', 'Action 8/',
+      'thought match:', 'action match:', 'observation match:', 'response match:',
+      'processing mid-process response',
+      'processing final response'
+    ];
+    
+    if (infrastructurePatterns.some(pattern => entry.message.includes(pattern))) {
+      return null;
+    }
+    
+    // Skip non-agent components unless they're errors
+    const nonAgentLoggers = ['app.auth', 'app.endpoints.chat', 'app.main'];
+    if (nonAgentLoggers.includes(entry.logger) && entry.level !== 'ERROR') {
+      return null;
+    }
   }
   
   // NOW classify the meaningful agent steps
@@ -296,38 +288,40 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     content = entry.message;
   }
   
-  // 2. TOOL/SERVICE EXECUTIONS - When agents actually do things
+  // 2. RESOURCE RETRIEVAL - When agents fetch context or resources
+  else if (entry.action?.includes('fetch_service_resources') || 
+           entry.message.includes('Fetching truncated resources') ||
+           entry.message.includes('Found') && entry.message.includes('truncated resources') ||
+           entry.message.includes('Added') && entry.message.includes('integration script tags')) {
+    stepType = 'resource_retrieval';
+    title = `${displayAgentName} Resource Retrieval`;
+    content = entry.message;
+  }
+  
+  // 3. TOOL/SERVICE EXECUTIONS - When agents actually do things
   else if (entry.action?.includes('service_tool_call') || 
            entry.message.includes('Executing service tool') ||
            entry.message.includes('Successfully executed service tool')) {
     stepType = 'tool_execution';
-    title = 'Service Tool Execution';
+    title = `${displayAgentName} Tool Execution`;
     content = entry.message;
   }
   
-  // 3. RESOURCE RETRIEVAL - When agents fetch context
-  else if (entry.action?.includes('fetch_service_resources') || 
-           entry.message.includes('Fetching truncated resources') ||
-           entry.message.includes('Found') && entry.message.includes('truncated resources')) {
-    stepType = 'resource_retrieval';
-    title = 'Resource Retrieval';
-    content = entry.message;
-  }
-  
-  // 4. TOOL DETAILS - Complete tool information
-  else if (entry.message.includes('Tool:') && entry.message.includes('Parameters:')) {
-    stepType = 'tool_execution';
-    title = 'Tool Details';
-    content = entry.message;
-  }
-  
-  // 5. OBSERVATIONS - Agent observations with resources/tools
+  // 4. OBSERVATIONS WITH RESOURCES - Key observations that contain resources
   else if (entry.message.includes('Observation:') && 
            (entry.message.includes('Associated Resources:') || 
             entry.message.includes('Available service tools:') ||
+            entry.message.includes('[Memory Resources]') ||
             entry.message.includes('SMS sent successfully'))) {
     stepType = 'agent_response';
-    title = `${displayAgentName} Observation`;
+    title = `Observation`;
+    content = entry.message;
+  }
+  
+  // 5. TOOL DETAILS - Complete tool information
+  else if (entry.message.includes('Tool:') && entry.message.includes('Parameters:')) {
+    stepType = 'tool_execution';
+    title = `Tool Details`;
     content = entry.message;
   }
   
@@ -351,7 +345,8 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
   // Enhance content for specific step types
   if (stepType === 'resource_retrieval') {
     extractedContent = {
-      action: entry.message
+      action: entry.message,
+      service_name: entry.service_name
     };
   } else if (stepType === 'tool_execution' && !extractedContent.toolDetails) {
     extractedContent = {
