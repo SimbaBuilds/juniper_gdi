@@ -32,7 +32,7 @@ export function LogStats({ stats, entries }: LogStatsProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-hidden">
       {/* Overview */}
       <Card>
         <CardHeader className="pb-3">
@@ -41,7 +41,7 @@ export function LogStats({ stats, entries }: LogStatsProps) {
             Overview
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 overflow-hidden">
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
@@ -78,7 +78,7 @@ export function LogStats({ stats, entries }: LogStatsProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Log Levels</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-hidden">
           <div className="space-y-2">
             {Object.entries(stats.byLevel).map(([level, count]) => (
               <div key={level} className="flex items-center justify-between">
@@ -103,7 +103,7 @@ export function LogStats({ stats, entries }: LogStatsProps) {
             Categories
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-hidden">
           <div className="space-y-2">
             {Object.entries(metrics.categories).map(([category, count]) => (
               <div key={category} className="flex items-center justify-between">
@@ -120,12 +120,12 @@ export function LogStats({ stats, entries }: LogStatsProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Top Loggers</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-hidden">
           <div className="space-y-2">
             {metrics.topLoggers.map(([logger, count]) => (
-              <div key={logger} className="flex items-center justify-between">
-                <span className="text-sm truncate flex-1">{logger}</span>
-                <Badge variant="outline">{count}</Badge>
+              <div key={logger} className="flex items-center justify-between min-w-0 w-full">
+                <span className="text-sm truncate mr-2 max-w-[200px]" style={{flex: '1 1 0%'}}>{logger}</span>
+                <Badge variant="outline" className="shrink-0 min-w-fit" style={{flex: '0 0 auto'}}>{count}</Badge>
               </div>
             ))}
           </div>
@@ -138,12 +138,12 @@ export function LogStats({ stats, entries }: LogStatsProps) {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Top Components</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-hidden">
             <div className="space-y-2">
               {metrics.topComponents.map(([component, count]) => (
-                <div key={component} className="flex items-center justify-between">
-                  <span className="text-sm truncate flex-1">{component}</span>
-                  <Badge variant="outline">{count}</Badge>
+                <div key={component} className="flex items-center justify-between min-w-0 w-full">
+                  <span className="text-sm truncate mr-2 max-w-[200px]" style={{flex: '1 1 0%'}}>{component}</span>
+                  <Badge variant="outline" className="shrink-0 min-w-fit" style={{flex: '0 0 auto'}}>{count}</Badge>
                 </div>
               ))}
             </div>
@@ -157,12 +157,12 @@ export function LogStats({ stats, entries }: LogStatsProps) {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Agents</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-hidden">
             <div className="space-y-2">
               {Object.entries(stats.byAgent).map(([agent, count]) => (
-                <div key={agent} className="flex items-center justify-between">
-                  <span className="text-sm truncate flex-1">{agent}</span>
-                  <Badge variant="outline">{count}</Badge>
+                <div key={agent} className="flex items-center justify-between min-w-0 w-full">
+                  <span className="text-sm truncate mr-2 max-w-[200px]" style={{flex: '1 1 0%'}}>{agent}</span>
+                  <Badge variant="outline" className="shrink-0 min-w-fit" style={{flex: '0 0 auto'}}>{count}</Badge>
                 </div>
               ))}
             </div>

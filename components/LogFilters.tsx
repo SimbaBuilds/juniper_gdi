@@ -63,7 +63,7 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-hidden">
       {/* Search */}
       <Card>
         <CardHeader className="pb-3">
@@ -77,19 +77,19 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 overflow-hidden">
           <div className="flex gap-2">
             <Input
               placeholder="Search logs..."
               value={filters.searchTerm}
               onChange={(e) => updateFilter('searchTerm', e.target.value)}
-              className="flex-1"
+              className="flex-1 min-w-0 max-w-full"
             />
             <Button
               variant="outline"
               size="sm"
               onClick={clearAllFilters}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 shrink-0"
             >
               <X className="w-4 h-4" />
               Clear
@@ -103,7 +103,7 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Log Categories</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 overflow-hidden">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">System Prompts</label>
             <Switch
@@ -151,8 +151,8 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Log Levels</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
+        <CardContent className="overflow-hidden">
+          <div className="flex flex-wrap gap-2 w-full overflow-hidden">
             {availableFilters.levels.map(level => (
               <Badge
                 key={level}
@@ -172,14 +172,16 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Loggers</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-hidden">
           <div className="space-y-2 max-h-40 overflow-y-auto">
             {availableFilters.loggers.map(logger => (
-              <div key={logger} className="flex items-center justify-between">
-                <span className="text-sm truncate flex-1">{logger}</span>
+              <div key={logger} className="flex items-center justify-between min-w-0 w-full">
+                <span className="text-sm truncate mr-2 max-w-[200px]" style={{flex: '1 1 0%'}}>{logger}</span>
                 <Switch
                   checked={filters.loggers.includes(logger)}
                   onCheckedChange={() => toggleArrayFilter('loggers', logger)}
+                  className="shrink-0 min-w-[44px]"
+                  style={{flex: '0 0 auto'}}
                 />
               </div>
             ))}
@@ -193,14 +195,16 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Components</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-hidden">
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {availableFilters.components.map(component => (
-                <div key={component} className="flex items-center justify-between">
-                  <span className="text-sm truncate flex-1">{component}</span>
+                <div key={component} className="flex items-center justify-between min-w-0 w-full">
+                  <span className="text-sm truncate mr-2 max-w-[200px]" style={{flex: '1 1 0%'}}>{component}</span>
                   <Switch
                     checked={filters.components.includes(component)}
                     onCheckedChange={() => toggleArrayFilter('components', component)}
+                    className="shrink-0 min-w-[44px]"
+                    style={{flex: '0 0 auto'}}
                   />
                 </div>
               ))}
@@ -215,14 +219,16 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Agents</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-hidden">
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {availableFilters.agents.map(agent => (
-                <div key={agent} className="flex items-center justify-between">
-                  <span className="text-sm truncate flex-1">{agent}</span>
+                <div key={agent} className="flex items-center justify-between min-w-0 w-full">
+                  <span className="text-sm truncate mr-2 max-w-[200px]" style={{flex: '1 1 0%'}}>{agent}</span>
                   <Switch
                     checked={filters.agents.includes(agent)}
                     onCheckedChange={() => toggleArrayFilter('agents', agent)}
+                    className="shrink-0 min-w-[44px]"
+                    style={{flex: '0 0 auto'}}
                   />
                 </div>
               ))}

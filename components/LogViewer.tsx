@@ -245,41 +245,45 @@ export function LogViewer() {
           </TabsList>
           
           <TabsContent value="logs">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full min-w-0">
               {/* Sidebar */}
-              <div className="lg:col-span-1">
-                <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+              <div className="lg:col-span-1 min-w-0 w-full max-w-full overflow-hidden">
+                <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full min-w-0 max-w-full">
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="filters" className="flex items-center gap-1">
+                    <TabsTrigger value="filters" className="flex items-center gap-1 text-xs">
                       <Settings className="w-4 h-4" />
                       Filters
                     </TabsTrigger>
-                    <TabsTrigger value="stats" className="flex items-center gap-1">
+                    <TabsTrigger value="stats" className="flex items-center gap-1 text-xs">
                       <BarChart3 className="w-4 h-4" />
                       Stats
                     </TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="filters" className="mt-4">
-                    <ScrollArea className="h-[calc(100vh-250px)]">
-                      <LogFilters
-                        filters={filters}
-                        onFiltersChange={setFilters}
-                        availableFilters={availableFilters}
-                      />
+                  <TabsContent value="filters" className="mt-4 min-w-0 max-w-full overflow-hidden">
+                    <ScrollArea className="h-[calc(100vh-250px)] w-full">
+                      <div className="min-w-0 max-w-full overflow-hidden">
+                        <LogFilters
+                          filters={filters}
+                          onFiltersChange={setFilters}
+                          availableFilters={availableFilters}
+                        />
+                      </div>
                     </ScrollArea>
                   </TabsContent>
                   
-                  <TabsContent value="stats" className="mt-4">
-                    <ScrollArea className="h-[calc(100vh-250px)]">
-                      <LogStats stats={stats} entries={filteredEntries} />
+                  <TabsContent value="stats" className="mt-4 min-w-0 max-w-full overflow-hidden">
+                    <ScrollArea className="h-[calc(100vh-250px)] w-full">
+                      <div className="min-w-0 max-w-full overflow-hidden">
+                        <LogStats stats={stats} entries={filteredEntries} />
+                      </div>
                     </ScrollArea>
                   </TabsContent>
                 </Tabs>
               </div>
 
               {/* Main Content */}
-              <div className="lg:col-span-3">
+              <div className="lg:col-span-2 min-w-0 w-full">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">

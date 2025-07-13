@@ -1,6 +1,28 @@
 import { useState, useEffect } from 'react';
 import { LogEntry, AgentConversation, AgentStep } from '@/lib/types';
 
+interface AgentResponseContent {
+  thought?: string;
+  action?: string;
+  observation?: string;
+  response?: string;
+  fullContent?: string;
+  systemPrompt?: string;
+  associatedResources?: Array<{
+    id: string;
+    title: string;
+    relevance?: number;
+    content: string;
+    lastAccessed?: string;
+  }>;
+  toolDetails?: {
+    name: string;
+    description: string;
+    parameters?: Record<string, unknown>;
+    example?: string;
+  };
+}
+
 export function useAgentFlowParser(logData: string | null) {
   const [conversations, setConversations] = useState<AgentConversation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -113,8 +135,9 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
         // Update summary
         conversation.summary.total_steps++;
         
-        if (entry.agent_name && !conversation.summary.agents_involved.includes(entry.agent_name)) {
-          conversation.summary.agents_involved.push(entry.agent_name);
+        // Use the extracted agent name from the step (Chat Agent, Config Agent, etc.)
+        if (step.agent_name && !conversation.summary.agents_involved.includes(step.agent_name)) {
+          conversation.summary.agents_involved.push(step.agent_name);
         }
         
         if (entry.level === 'ERROR') {
@@ -142,105 +165,205 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
 
 function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null {
   const stepId = `step_${index}`;
-  
-  // Filter out routine system logs that don't represent meaningful agent actions
-  const routinePatterns = [
+
+  // 1. TRUE SYSTEM PROMPT: Only include if a dedicated field or clear message
+  if (entry.system_prompt || (typeof entry.message === 'string' && entry.message.trim().toLowerCase().startsWith('system prompt:'))) {
+    const promptText = entry.system_prompt || entry.message.replace(/^System Prompt:/i, '').trim();
+    const actualAgentName = extractActualAgentName(entry.message);
+    const displayAgentName = actualAgentName || entry.agent_name || 'Agent';
+    
+    return {
+      id: stepId,
+      type: 'system_prompt',
+      timestamp: entry.timestamp,
+      agent_name: actualAgentName || entry.agent_name,
+      title: `${displayAgentName} System Prompt`,
+      content: promptText,
+      extractedContent: { 
+        response: promptText,
+        systemPrompt: promptText
+      },
+      details: {
+        logger: entry.logger,
+        module: entry.module,
+        funcName: entry.funcName,
+        component: entry.component,
+        action: entry.action,
+        pathname: entry.pathname,
+        lineno: entry.lineno,
+        exception: entry.exception,
+        level: entry.level
+      },
+      user_id: entry.user_id,
+      request_id: entry.request_id,
+      status: entry.level === 'ERROR' ? 'error' : 'success'
+    };
+  }
+
+  // STRICT FILTERING: Only include meaningful agent reasoning steps
+  const infrastructurePatterns = [
+    // Authentication & Security
+    '=== Authentication successful ===',
+    // HTTP Request Processing
+    'Received chat request:',
+    'Processing chat request -',
+    'Successfully processed chat response',
+    'Request completed:',
+    // Settings & Configuration
     'Settings updated:',
     'Integration in progress:',
-    'Successfully processed chat response',
     'Using user\'s preferred model:',
     'User search config:',
-    'Processing chat request -',
+    // Model Provider Infrastructure
+    'Initialized AnthropicProvider',
+    'Generated response from AnthropicProvider',
+    // Agent Infrastructure (not reasoning)
+    'Agent initialized with system prompt',
+    'Starting query processing',
+    'Query completed successfully',
+    'Agent produced observation',
+    'Agent produced final response',
+    // Processing Steps (internal mechanics)
+    'processing actions from response',
+    'generating model response with',
     'Adding observation to messages:',
+    'generated response from',
+    'Generated response from',
     'Action 1/5 executed',
+    'Action 2/8 executed', 
+    'Action 3/8 executed',
+    'Action 4/8 executed',
+    'Action 5/8 executed',
+    'Action 1/8 executed',
     'Action 2/8 executed',
     'Action 3/8 executed',
     'Action 4/8 executed',
-    'Request completed:',
-    'Agent initialized with system prompt',
-    'Agent produced observation',
-    'Agent produced final response',
-    'Query completed successfully'
+    'Action 5/8 executed',
+    'Action 6/8 executed',
+    'Action 7/8 executed',
+    'Action 8/8 executed',
+    // Pattern Matching Logs (debugging info)
+    'thought match:',
+    'action match:',
+    'observation match:', 
+    'response match:',
+    'processing mid-process response',
+    'processing final response',
+    'processing actions from response',
+    // Integration Script Management
+    'Added integration script tags',
+    'integration script tags added'
   ];
   
-  // Skip routine system messages
-  if (routinePatterns.some(pattern => entry.message.includes(pattern))) {
+  // Skip ALL infrastructure messages - be very strict
+  if (infrastructurePatterns.some(pattern => entry.message.includes(pattern))) {
     return null;
   }
   
-  // Determine step type based on message content and action
-  let stepType: AgentStep['type'] = 'system_prompt';
+  // Skip logs that don't have agent context (pure infrastructure)
+  if (!entry.agent_name && !entry.message.includes('model response:') && 
+      !entry.message.includes('Observation:') && !entry.action?.includes('service_tool') &&
+      !entry.message.includes('Tool:') && entry.level !== 'ERROR') {
+    return null;
+  }
+  
+  // Skip logs from non-agent components (unless they're errors)
+  const nonAgentLoggers = [
+    'app.auth',
+    'app.endpoints.chat', 
+    'app.main'
+  ];
+  
+  if (nonAgentLoggers.includes(entry.logger) && entry.level !== 'ERROR') {
+    return null;
+  }
+  
+  // NOW classify the meaningful agent steps
+  let stepType: AgentStep['type'] = 'agent_response';
   let title = entry.message;
   let content = entry.message;
-
-  if (entry.action?.includes('query_start') || entry.message.includes('Starting query processing')) {
-    stepType = 'system_prompt';
-    title = 'Query Started';
-    content = 'Query Started';
-  } else if (entry.action?.includes('log_agent_event') && entry.message.includes('Agent initialized')) {
-    stepType = 'system_prompt'; 
-    title = 'System Prompt';
-    content = 'System Prompt';
-  } else if (entry.message.includes('model response:') && 
-             (entry.message.includes('Thought:') || entry.message.includes('Action:') || 
-              entry.message.includes('Observation:') || entry.message.includes('Response:'))) {
+  
+  // Extract actual agent name from message content (Chat Agent, Config Agent, etc.)
+  const actualAgentName = extractActualAgentName(entry.message);
+  const displayAgentName = actualAgentName || entry.agent_name || 'Agent';
+  
+  // 1. AGENT MODEL RESPONSES - The core reasoning
+  if (entry.message.includes('model response:') && 
+      (entry.message.includes('Thought:') || entry.message.includes('Action:') || 
+       entry.message.includes('Observation:') || entry.message.includes('Response:'))) {
     stepType = 'agent_response';
-    title = `${entry.agent_name || 'Agent'} Model Response`;
+    title = `${displayAgentName} Reasoning`;
     content = entry.message;
-  } else if (entry.message.includes('Observation:') && 
-             (entry.message.includes('Associated Resources:') || entry.message.includes('Available service tools:'))) {
-    stepType = 'agent_response';
-    title = `${entry.agent_name || 'Agent'} Observation`;
-    content = entry.message;
-  } else if (entry.message.includes('Tool:') && entry.message.includes('Parameters:')) {
+  }
+  
+  // 2. TOOL/SERVICE EXECUTIONS - When agents actually do things
+  else if (entry.action?.includes('service_tool_call') || 
+           entry.message.includes('Executing service tool') ||
+           entry.message.includes('Successfully executed service tool')) {
     stepType = 'tool_execution';
-    title = 'Tool Details';
+    title = 'Service Tool Execution';
     content = entry.message;
-  } else if (entry.action?.includes('fetch_service_resources') || entry.message.includes('truncated resources')) {
+  }
+  
+  // 3. RESOURCE RETRIEVAL - When agents fetch context
+  else if (entry.action?.includes('fetch_service_resources') || 
+           entry.message.includes('Fetching truncated resources') ||
+           entry.message.includes('Found') && entry.message.includes('truncated resources')) {
     stepType = 'resource_retrieval';
     title = 'Resource Retrieval';
     content = entry.message;
-  } else if (entry.level === 'ERROR' || entry.message.toLowerCase().includes('error') || 
-             entry.message.toLowerCase().includes('failed')) {
-    stepType = 'error';
-    title = entry.message.includes('Service tool execution failed') ? 'Tool Execution Failed' : 'Error Occurred';
+  }
+  
+  // 4. TOOL DETAILS - Complete tool information
+  else if (entry.message.includes('Tool:') && entry.message.includes('Parameters:')) {
+    stepType = 'tool_execution';
+    title = 'Tool Details';
     content = entry.message;
-  } else if (entry.message.includes('thought match:') || entry.message.includes('action match:') || 
-             entry.message.includes('observation match:') || entry.message.includes('response match:')) {
-    // These are parsing logs - include them as agent responses but with lower priority
+  }
+  
+  // 5. OBSERVATIONS - Agent observations with resources/tools
+  else if (entry.message.includes('Observation:') && 
+           (entry.message.includes('Associated Resources:') || 
+            entry.message.includes('Available service tools:') ||
+            entry.message.includes('SMS sent successfully'))) {
     stepType = 'agent_response';
-    title = `${entry.agent_name || 'Agent'} Pattern Match`;
+    title = `${displayAgentName} Observation`;
     content = entry.message;
-  } else if (entry.message.includes('processing actions') || entry.message.includes('generating model response')) {
-    // Skip these routine processing messages
+  }
+  
+  // 6. ERRORS - When things go wrong
+  else if (entry.level === 'ERROR' || 
+           entry.message.toLowerCase().includes('failed') ||
+           entry.message.toLowerCase().includes('error')) {
+    stepType = 'error';
+    title = 'Error Occurred';
+    content = entry.message;
+  }
+  
+  // 7. FINAL FILTER - If none of the above, skip it
+  else {
     return null;
   }
-
+  
   // Extract structured content for better display
   let extractedContent = extractAgentContent(entry.message);
   
-  // For non-model-response entries, create more meaningful content
-  if (!extractedContent.thought && !extractedContent.action && !extractedContent.response && !extractedContent.associatedResources && !extractedContent.toolDetails) {
-    if (stepType === 'system_prompt' && entry.action === 'query_start') {
-      extractedContent = {
-        response: `Started processing query for user ${entry.user_id?.slice(-8) || 'unknown'} in request ${entry.request_id || 'session'}`
-      };
-    } else if (stepType === 'resource_retrieval') {
-      extractedContent = {
-        action: entry.message
-      };
-    } else if (stepType === 'tool_execution') {
-      extractedContent = {
-        action: entry.message
-      };
-    }
+  // Enhance content for specific step types
+  if (stepType === 'resource_retrieval') {
+    extractedContent = {
+      action: entry.message
+    };
+  } else if (stepType === 'tool_execution' && !extractedContent.toolDetails) {
+    extractedContent = {
+      action: entry.message
+    };
   }
 
   return {
     id: stepId,
     type: stepType,
     timestamp: entry.timestamp,
-    agent_name: entry.agent_name,
+    agent_name: actualAgentName || entry.agent_name,
     title,
     content,
     extractedContent,
@@ -282,25 +405,31 @@ function extractToolName(message: string): string | null {
   return null;
 }
 
-interface AgentResponseContent {
-  thought?: string;
-  action?: string;
-  observation?: string;
-  response?: string;
-  fullContent?: string;
-  associatedResources?: Array<{
-    id: string;
-    title: string;
-    relevance?: number;
-    content: string;
-    lastAccessed?: string;
-  }>;
-  toolDetails?: {
-    name: string;
-    description: string;
-    parameters?: Record<string, unknown>;
-    example?: string;
-  };
+function extractActualAgentName(message: string): string | null {
+  // Extract actual agent names from message content
+  // Patterns: "Chat Agent model response:", "Config Agent generating", etc.
+  const patterns = [
+    /^([A-Za-z\s]+Agent)\s+model\s+response:/i,
+    /^([A-Za-z\s]+Agent)\s+generating/i,
+    /^([A-Za-z\s]+Agent)\s+processing/i,
+    /^([A-Za-z\s]+Agent)\s+thought\s+match:/i,
+    /^([A-Za-z\s]+Agent)\s+action\s+match:/i,
+    /^([A-Za-z\s]+Agent)\s+observation\s+match:/i,
+    /^([A-Za-z\s]+Agent)\s+response\s+match:/i,
+    /^([A-Za-z\s]+Agent)\s+detected/i,
+    /^([A-Za-z\s]+Agent)\s+preserving/i,
+    /^([A-Za-z\s]+Agent)\s+produced/i,
+    /^([A-Za-z\s]+Agent)\s+completed/i
+  ];
+  
+  for (const pattern of patterns) {
+    const match = message.match(pattern);
+    if (match) {
+      return match[1].trim();
+    }
+  }
+  
+  return null;
 }
 
 function extractAgentContent(message: string): AgentResponseContent {
@@ -337,25 +466,35 @@ function extractAgentContent(message: string): AgentResponseContent {
     toolDetails: undefined
   };
 
-  // Parse structured reasoning patterns
-  const thoughtMatch = content.match(/Thought:\s*(.*?)(?=\n\n?Action:|$)/);
+  // Parse structured reasoning patterns with improved regex to handle numbered formats
+  // Handle both "Thought:" and "1. Thought:" formats, with better multiline support
+  const thoughtMatch = content.match(/(?:^|\n)\s*(?:\d+\.\s*)?Thought:\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*)?(?:Action:|Observation:|Response:)|$)/);
   if (thoughtMatch) {
     result.thought = thoughtMatch[1].trim();
   }
 
-  const actionMatch = content.match(/Action:\s*(.*?)(?=\n\n?Observation:|$)/);
+  const actionMatch = content.match(/(?:^|\n)\s*(?:\d+\.\s*)?Action:\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*)?(?:Observation:|Response:)|$)/);
   if (actionMatch) {
     result.action = actionMatch[1].trim();
   }
 
-  const observationMatch = content.match(/Observation:\s*(.*?)(?=\n\n?Response:|$)/);
+  const observationMatch = content.match(/(?:^|\n)\s*(?:\d+\.\s*)?Observation:\s*([\s\S]*?)(?=\n\s*(?:\d+\.\s*)?Response:|$)/);
   if (observationMatch) {
     result.observation = observationMatch[1].trim();
   }
 
-  const responseMatch = content.match(/Response:\s*(.*?)$/);
+  const responseMatch = content.match(/(?:^|\n)\s*(?:\d+\.\s*)?Response:\s*([\s\S]*?)$/);
   if (responseMatch) {
     result.response = responseMatch[1].trim();
+  }
+
+  // If no structured content was found, try to parse standalone observation messages
+  if (!result.thought && !result.action && !result.response && message.includes('Observation:')) {
+    // Handle standalone observation messages (like from tool executions)
+    const observationMatch = content.match(/Observation:\s*([\s\S]*?)$/);
+    if (observationMatch) {
+      result.observation = observationMatch[1].trim();
+    }
   }
 
   // Parse associated resources with improved regex

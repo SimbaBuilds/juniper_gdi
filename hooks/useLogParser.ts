@@ -41,7 +41,7 @@ export function useLogParser(logData: string | null) {
     const categories: string[] = [];
 
     // System prompts
-    if (entry.message.includes('system prompt') || entry.action === 'agent_initialization') {
+    if (entry.system_prompt || entry.message.includes('system prompt') || entry.action === 'agent_initialization') {
       categories.push('system_prompts');
     }
 

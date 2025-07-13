@@ -79,45 +79,45 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{stats.totalConversations}</div>
-            <div className="text-sm text-muted-foreground">Conversations</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">{stats.totalSteps}</div>
-            <div className="text-sm text-muted-foreground">Total Steps</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600">{stats.uniqueAgents}</div>
-            <div className="text-sm text-muted-foreground">Agents</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-red-600">{stats.totalErrors}</div>
-            <div className="text-sm text-muted-foreground">Errors</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div className="space-y-6 h-[calc(100vh-120px)]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full w-full">
         {/* Sidebar */}
-        <div className="lg:col-span-1">
-          <Tabs defaultValue="conversations" className="w-full">
+        <div className="lg:col-span-1 space-y-4 h-full min-w-0 w-full overflow-hidden">
+          {/* Stats Overview - moved here */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-blue-600">{stats.totalConversations}</div>
+                <div className="text-xs text-muted-foreground">Conversations</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-green-600">{stats.totalSteps}</div>
+                <div className="text-xs text-muted-foreground">Total Steps</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-purple-600">{stats.uniqueAgents}</div>
+                <div className="text-xs text-muted-foreground">Agents</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-red-600">{stats.totalErrors}</div>
+                <div className="text-xs text-muted-foreground">Errors</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Tabs defaultValue="conversations" className="w-full min-w-0">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="conversations">
+              <TabsTrigger value="conversations" className="text-xs">
                 <MessageSquare className="w-4 h-4 mr-1" />
                 Conversations
               </TabsTrigger>
-              <TabsTrigger value="filters">
+              <TabsTrigger value="filters" className="text-xs">
                 <Filter className="w-4 h-4 mr-1" />
                 Filters
               </TabsTrigger>
@@ -128,47 +128,47 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 <CardHeader>
                   <CardTitle className="text-lg">Conversations</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="overflow-hidden">
                   <ScrollArea className="h-[400px]">
                     <div className="space-y-2">
                       {conversations.map(conv => (
                         <div
                           key={conv.id}
-                          className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                          className={`p-3 rounded-lg border cursor-pointer transition-colors min-w-0 ${
                             selectedConversation === conv.id 
                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' 
                               : 'border-border hover:border-border/80'
                           }`}
                           onClick={() => setSelectedConversation(conv.id)}
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <Badge variant="outline" className="text-xs">
+                          <div className="flex items-center justify-between mb-2 min-w-0 gap-2">
+                            <Badge variant="outline" className="text-xs shrink-0">
                               {conv.summary.total_steps} steps
                             </Badge>
                             {conv.summary.errors > 0 && (
-                              <Badge variant="destructive" className="text-xs">
+                              <Badge variant="destructive" className="text-xs shrink-0">
                                 {conv.summary.errors} errors
                               </Badge>
                             )}
                           </div>
                           
-                          <div className="text-sm">
-                            <div className="font-medium truncate">
+                          <div className="text-sm min-w-0">
+                            <div className="font-medium truncate max-w-[220px]">
                               {conv.request_id || conv.id}
                             </div>
-                            <div className="text-muted-foreground text-xs mt-1">
+                            <div className="text-muted-foreground text-xs mt-1 truncate max-w-[220px]">
                               {new Date(conv.start_time).toLocaleString()}
                             </div>
                           </div>
                           
-                          <div className="flex flex-wrap gap-1 mt-2">
+                          <div className="flex flex-wrap gap-1 mt-2 min-w-0 overflow-hidden">
                             {conv.summary.agents_involved.slice(0, 2).map(agent => (
-                              <Badge key={agent} variant="secondary" className="text-xs">
+                              <Badge key={agent} variant="secondary" className="text-xs truncate max-w-[80px]">
                                 {agent}
                               </Badge>
                             ))}
                             {conv.summary.agents_involved.length > 2 && (
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge variant="secondary" className="text-xs shrink-0">
                                 +{conv.summary.agents_involved.length - 2}
                               </Badge>
                             )}
@@ -186,44 +186,54 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 <CardHeader>
                   <CardTitle className="text-lg">Flow Filters</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">System Prompts</label>
+                <CardContent className="space-y-4 overflow-hidden">
+                  <div className="flex items-center justify-between min-w-0 w-full">
+                    <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>System Prompts</label>
                     <Switch
                       checked={flowOptions.showSystemPrompts}
                       onCheckedChange={(checked) => updateFlowOption('showSystemPrompts', checked)}
+                      className="shrink-0 min-w-[44px]"
+                      style={{flex: '0 0 auto'}}
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Tool Executions</label>
+                  <div className="flex items-center justify-between min-w-0 w-full">
+                    <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Tool Executions</label>
                     <Switch
                       checked={flowOptions.showToolExecutions}
                       onCheckedChange={(checked) => updateFlowOption('showToolExecutions', checked)}
+                      className="shrink-0 min-w-[44px]"
+                      style={{flex: '0 0 auto'}}
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Resource Retrievals</label>
+                  <div className="flex items-center justify-between min-w-0 w-full">
+                    <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Resource Retrievals</label>
                     <Switch
                       checked={flowOptions.showResourceRetrievals}
                       onCheckedChange={(checked) => updateFlowOption('showResourceRetrievals', checked)}
+                      className="shrink-0 min-w-[44px]"
+                      style={{flex: '0 0 auto'}}
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Agent Responses</label>
+                  <div className="flex items-center justify-between min-w-0 w-full">
+                    <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Agent Responses</label>
                     <Switch
                       checked={flowOptions.showAgentResponses}
                       onCheckedChange={(checked) => updateFlowOption('showAgentResponses', checked)}
+                      className="shrink-0 min-w-[44px]"
+                      style={{flex: '0 0 auto'}}
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Errors</label>
+                  <div className="flex items-center justify-between min-w-0 w-full">
+                    <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Errors</label>
                     <Switch
                       checked={flowOptions.showErrors}
                       onCheckedChange={(checked) => updateFlowOption('showErrors', checked)}
+                      className="shrink-0 min-w-[44px]"
+                      style={{flex: '0 0 auto'}}
                     />
                   </div>
                 </CardContent>
@@ -232,9 +242,9 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
           </Tabs>
         </div>
 
-        {/* Main Flow View */}
-        <div className="lg:col-span-3">
-          <Card>
+        {/* Main Flow View - now takes up all remaining columns and height */}
+        <div className="lg:col-span-2 h-full flex flex-col min-w-0 w-full">
+          <Card className="flex flex-col flex-1 h-full">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Agent Flow</span>
@@ -250,8 +260,8 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 )}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[600px]">
+            <CardContent className="flex-1 h-0 p-0">
+              <ScrollArea className="h-full px-6 pt-6">
                 {selectedConv ? (
                   <div className="space-y-4">
                     {filteredSteps.length === 0 ? (
