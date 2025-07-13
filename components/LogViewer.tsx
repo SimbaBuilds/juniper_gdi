@@ -140,7 +140,7 @@ export function LogViewer() {
           </Button>
         </div>
         
-        <Card>
+        <Card className="overflow-x-auto">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Upload className="w-5 h-5" />
@@ -185,7 +185,7 @@ export function LogViewer() {
       </div>
 
       {/* File Upload */}
-      <Card className="mb-6">
+      <Card className="mb-6 overflow-x-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="w-5 h-5" />
@@ -284,7 +284,7 @@ export function LogViewer() {
 
               {/* Main Content */}
               <div className="lg:col-span-2 min-w-0 w-full">
-                <Card>
+                <Card className="overflow-x-auto">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>Log Entries</span>
@@ -293,7 +293,7 @@ export function LogViewer() {
                       </span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="overflow-x-auto">
                     <ScrollArea className="h-[calc(100vh-250px)]">
                       <div className="space-y-2">
                         {filteredEntries.length === 0 ? (

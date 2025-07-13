@@ -240,7 +240,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
     <div className="relative">
       <Card className={`transition-all duration-200 ${expanded ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}>
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between min-w-0">
             <div className="flex items-center gap-3">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepColor(step.type)}`}>
                 {getStepIcon(step.type)}
@@ -281,9 +281,10 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
           </div>
         </CardHeader>
         
-        <CardContent className="pt-0 overflow-hidden">
-          <div className="space-y-3">
-            <h3 className="font-medium">{step.title}</h3>
+                  <CardContent className="pt-0">
+            <div className="overflow-x-auto">
+              <div className="space-y-3 pr-4" style={{minWidth: '500px'}}>
+                <h3 className="font-medium">{step.title}</h3>
             
             {/* Special handling for system prompts */}
             {step.type === 'system_prompt' ? (
@@ -378,9 +379,9 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
               </>
             )}
             
-            {expanded && step.details && (
-              <div className="mt-4 space-y-3 border-t pt-4">
-                <div className="grid grid-cols-2 gap-4 text-sm overflow-hidden">
+                            {expanded && step.details && (
+                  <div className="mt-4 space-y-3 border-t pt-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
                   {step.details.logger && (
                     <div className="min-w-0">
                       <span className="font-medium">Logger:</span>
@@ -443,6 +444,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                 )}
               </div>
             )}
+            </div>
           </div>
         </CardContent>
       </Card>

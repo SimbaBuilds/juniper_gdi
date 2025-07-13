@@ -65,7 +65,7 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
   return (
     <div className="space-y-4 overflow-hidden">
       {/* Search */}
-      <Card>
+      <Card className="overflow-x-auto">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Search className="w-5 h-5" />
@@ -77,7 +77,7 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 overflow-hidden">
+        <CardContent className="space-y-4 overflow-x-auto">
           <div className="flex gap-2">
             <Input
               placeholder="Search logs..."
@@ -99,11 +99,11 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
       </Card>
 
       {/* Category Toggles */}
-      <Card>
+      <Card className="overflow-x-auto">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Log Categories</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 overflow-hidden">
+        <CardContent className="space-y-3 overflow-x-auto">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">System Prompts</label>
             <Switch
@@ -151,8 +151,8 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Log Levels</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-hidden">
-          <div className="flex flex-wrap gap-2 w-full overflow-hidden">
+        <CardContent className="overflow-x-auto">
+          <div className="flex flex-wrap gap-2 w-full overflow-x-auto">
             {availableFilters.levels.map(level => (
               <Badge
                 key={level}
@@ -172,7 +172,7 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Loggers</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-hidden">
+        <CardContent className="overflow-x-auto">
           <div className="space-y-2 max-h-40 overflow-y-auto">
             {availableFilters.loggers.map(logger => (
               <div key={logger} className="flex items-center justify-between min-w-0 w-full">
@@ -191,11 +191,11 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
 
       {/* Components */}
       {availableFilters.components.length > 0 && (
-        <Card>
+        <Card className="overflow-x-auto">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Components</CardTitle>
           </CardHeader>
-          <CardContent className="overflow-hidden">
+          <CardContent className="overflow-x-auto">
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {availableFilters.components.map(component => (
                 <div key={component} className="flex items-center justify-between min-w-0 w-full">
@@ -215,11 +215,11 @@ export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFi
 
       {/* Agents */}
       {availableFilters.agents.length > 0 && (
-        <Card>
+        <Card className="overflow-x-auto">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Agents</CardTitle>
           </CardHeader>
-          <CardContent className="overflow-hidden">
+          <CardContent className="overflow-x-auto">
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {availableFilters.agents.map(agent => (
                 <div key={agent} className="flex items-center justify-between min-w-0 w-full">

@@ -41,7 +41,7 @@ export function LogStats({ stats, entries }: LogStatsProps) {
             Overview
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 overflow-hidden">
+        <CardContent className="space-y-3 overflow-x-auto">
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
@@ -78,7 +78,7 @@ export function LogStats({ stats, entries }: LogStatsProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Log Levels</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-hidden">
+        <CardContent className="overflow-x-auto">
           <div className="space-y-2">
             {Object.entries(stats.byLevel).map(([level, count]) => (
               <div key={level} className="flex items-center justify-between">
@@ -103,7 +103,7 @@ export function LogStats({ stats, entries }: LogStatsProps) {
             Categories
           </CardTitle>
         </CardHeader>
-        <CardContent className="overflow-hidden">
+        <CardContent className="overflow-x-auto">
           <div className="space-y-2">
             {Object.entries(metrics.categories).map(([category, count]) => (
               <div key={category} className="flex items-center justify-between">
@@ -120,7 +120,7 @@ export function LogStats({ stats, entries }: LogStatsProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Top Loggers</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-hidden">
+        <CardContent className="overflow-x-auto">
           <div className="space-y-2">
             {metrics.topLoggers.map(([logger, count]) => (
               <div key={logger} className="flex items-center justify-between min-w-0 w-full">
@@ -134,11 +134,11 @@ export function LogStats({ stats, entries }: LogStatsProps) {
 
       {/* Top Components */}
       {metrics.topComponents.length > 0 && (
-        <Card>
+        <Card className="overflow-x-auto">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Top Components</CardTitle>
           </CardHeader>
-          <CardContent className="overflow-hidden">
+          <CardContent className="overflow-x-auto">
             <div className="space-y-2">
               {metrics.topComponents.map(([component, count]) => (
                 <div key={component} className="flex items-center justify-between min-w-0 w-full">
@@ -153,11 +153,11 @@ export function LogStats({ stats, entries }: LogStatsProps) {
 
       {/* Agents */}
       {Object.keys(stats.byAgent).length > 0 && (
-        <Card>
+        <Card className="overflow-x-auto">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Agents</CardTitle>
           </CardHeader>
-          <CardContent className="overflow-hidden">
+          <CardContent className="overflow-x-auto">
             <div className="space-y-2">
               {Object.entries(stats.byAgent).map(([agent, count]) => (
                 <div key={agent} className="flex items-center justify-between min-w-0 w-full">

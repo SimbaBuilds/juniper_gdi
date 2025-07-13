@@ -67,7 +67,7 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
   };
 
   return (
-    <Card className="mb-2 transition-all duration-200 hover:shadow-md">
+    <Card className="mb-2 transition-all duration-200 hover:shadow-md overflow-x-auto">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -112,7 +112,7 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 overflow-x-auto">
         <div className="space-y-2">
           <div className="flex items-start gap-2">
             <span className="text-sm font-medium">Message:</span>

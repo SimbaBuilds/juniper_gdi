@@ -84,31 +84,33 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
         {/* Sidebar */}
         <div className="lg:col-span-1 space-y-4 h-full min-w-0 w-full overflow-hidden">
           {/* Stats Overview - moved here */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Card>
+          <div className="overflow-x-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-[280px]">
+            <Card className="overflow-x-auto">
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-blue-600">{stats.totalConversations}</div>
                 <div className="text-xs text-muted-foreground">Conversations</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="overflow-x-auto">
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-green-600">{stats.totalSteps}</div>
                 <div className="text-xs text-muted-foreground">Total Steps</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="overflow-x-auto">
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-purple-600">{stats.uniqueAgents}</div>
                 <div className="text-xs text-muted-foreground">Agents</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="overflow-x-auto">
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-red-600">{stats.totalErrors}</div>
                 <div className="text-xs text-muted-foreground">Errors</div>
               </CardContent>
             </Card>
+            </div>
           </div>
 
           <Tabs defaultValue="conversations" className="w-full min-w-0">
@@ -128,9 +130,10 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 <CardHeader>
                   <CardTitle className="text-lg">Conversations</CardTitle>
                 </CardHeader>
-                <CardContent className="overflow-hidden">
-                  <ScrollArea className="h-[400px]">
-                    <div className="space-y-2">
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <ScrollArea className="h-[400px]">
+                      <div className="space-y-2" style={{minWidth: '280px'}}>
                       {conversations.map(conv => (
                         <div
                           key={conv.id}
@@ -175,8 +178,9 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                           </div>
                         </div>
                       ))}
-                    </div>
-                  </ScrollArea>
+                      </div>
+                    </ScrollArea>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -186,8 +190,10 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 <CardHeader>
                   <CardTitle className="text-lg">Flow Filters</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 overflow-hidden">
-                  <div className="flex items-center justify-between min-w-0 w-full">
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <div className="space-y-4" style={{minWidth: '280px'}}>
+                      <div className="flex items-center justify-between min-w-0 w-full">
                     <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>System Prompts</label>
                     <Switch
                       checked={flowOptions.showSystemPrompts}
@@ -235,6 +241,8 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                       className="shrink-0 min-w-[44px]"
                       style={{flex: '0 0 auto'}}
                     />
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -261,28 +269,30 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 h-0 p-0">
-              <ScrollArea className="h-full px-6 pt-6">
-                {selectedConv ? (
-                  <div className="space-y-4">
-                    {filteredSteps.length === 0 ? (
-                      <div className="text-center text-muted-foreground py-8">
-                        No steps match the current filters.
-                      </div>
-                    ) : (
-                      filteredSteps.map((step, index) => (
-                        <AgentFlowStep
-                          key={step.id}
-                          step={step}
-                          stepNumber={index + 1}
-                        />
-                      ))
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">
-                    Select a conversation to view its flow.
-                  </div>
-                )}
+              <ScrollArea className="h-full">
+                <div className="overflow-x-auto px-6 pt-6">
+                  {selectedConv ? (
+                    <div className="space-y-4 pb-6" style={{minWidth: '600px'}}>
+                      {filteredSteps.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8">
+                          No steps match the current filters.
+                        </div>
+                      ) : (
+                        filteredSteps.map((step, index) => (
+                          <AgentFlowStep
+                            key={step.id}
+                            step={step}
+                            stepNumber={index + 1}
+                          />
+                        ))
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                      Select a conversation to view its flow.
+                    </div>
+                  )}
+                </div>
               </ScrollArea>
             </CardContent>
           </Card>
