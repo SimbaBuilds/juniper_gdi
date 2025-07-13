@@ -237,8 +237,8 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
   };
 
   return (
-    <div className="relative">
-      <Card className={`transition-all duration-200 ${expanded ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}>
+    <div className="relative w-full">
+      <Card className={`transition-all duration-200 w-full ${expanded ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between min-w-0">
             <div className="flex items-center gap-3">
@@ -281,9 +281,8 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
           </div>
         </CardHeader>
         
-                  <CardContent className="pt-0">
-            <div className="overflow-x-auto">
-              <div className="space-y-3 pr-4" style={{minWidth: '500px'}}>
+                  <CardContent className="pt-0 overflow-x-auto">
+              <div className="space-y-3 pr-4 min-w-max">
                 <h3 className="font-medium">{step.title}</h3>
             
             {/* Special handling for system prompts */}
@@ -445,7 +444,6 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
               </div>
             )}
             </div>
-          </div>
         </CardContent>
       </Card>
     </div>

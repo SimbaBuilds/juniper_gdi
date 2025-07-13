@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -269,10 +269,10 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 h-0 p-0">
-              <ScrollArea className="h-full">
-                <div className="overflow-x-auto px-6 pt-6">
+              <ScrollArea className="h-full w-full">
+                <div className="px-6 pt-6">
                   {selectedConv ? (
-                    <div className="space-y-4 pb-6" style={{minWidth: '600px'}}>
+                    <div className="space-y-4 pb-6 w-max">
                       {filteredSteps.length === 0 ? (
                         <div className="text-center text-muted-foreground py-8">
                           No steps match the current filters.
@@ -293,6 +293,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                     </div>
                   )}
                 </div>
+                <ScrollBar orientation="horizontal" />
               </ScrollArea>
             </CardContent>
           </Card>
