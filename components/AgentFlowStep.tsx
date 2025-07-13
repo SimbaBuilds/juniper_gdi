@@ -150,6 +150,57 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                     <p className="text-sm text-purple-700 dark:text-purple-200">{step.extractedContent.response}</p>
                   </div>
                 )}
+                
+                {step.extractedContent.associatedResources && step.extractedContent.associatedResources.length > 0 && (
+                  <div className="bg-cyan-50 dark:bg-cyan-950/30 p-3 rounded-lg border-l-4 border-cyan-400">
+                    <div className="font-medium text-sm text-cyan-800 dark:text-cyan-300 mb-2">📁 Associated Resources</div>
+                    <div className="space-y-2">
+                      {step.extractedContent.associatedResources.map((resource, idx) => (
+                        <div key={idx} className="bg-white dark:bg-gray-800 p-2 rounded border">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-medium text-xs text-cyan-900 dark:text-cyan-100">{resource.title}</span>
+                            {resource.relevance && (
+                              <span className="text-xs bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 px-1 rounded">
+                                {resource.relevance}% relevant
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">{resource.content}</p>
+                          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                            <span>ID: {resource.id.slice(0, 8)}...</span>
+                            {resource.lastAccessed && <span>Last: {resource.lastAccessed}</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {step.extractedContent.toolDetails && (
+                  <div className="bg-yellow-50 dark:bg-yellow-950/30 p-3 rounded-lg border-l-4 border-yellow-400">
+                    <div className="font-medium text-sm text-yellow-800 dark:text-yellow-300 mb-2">🔧 Tool Details</div>
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border">
+                      <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100 mb-1">{step.extractedContent.toolDetails.name}</div>
+                      <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">{step.extractedContent.toolDetails.description}</p>
+                      {step.extractedContent.toolDetails.parameters && (
+                        <div className="mb-2">
+                          <span className="font-medium text-xs text-yellow-800 dark:text-yellow-200">Parameters:</span>
+                          <pre className="text-xs bg-gray-100 dark:bg-gray-700 p-1 rounded mt-1 overflow-x-auto">
+                            {JSON.stringify(step.extractedContent.toolDetails.parameters, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                      {step.extractedContent.toolDetails.example && (
+                        <div>
+                          <span className="font-medium text-xs text-yellow-800 dark:text-yellow-200">Example:</span>
+                          <code className="text-xs bg-gray-100 dark:bg-gray-700 p-1 rounded block mt-1">
+                            {step.extractedContent.toolDetails.example}
+                          </code>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">{step.content}</p>

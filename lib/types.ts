@@ -66,6 +66,19 @@ export interface AgentStep {
     observation?: string;
     response?: string;
     fullContent?: string;
+    associatedResources?: Array<{
+      id: string;
+      title: string;
+      relevance?: number;
+      content: string;
+      lastAccessed?: string;
+    }>;
+    toolDetails?: {
+      name: string;
+      description: string;
+      parameters?: Record<string, any>;
+      example?: string;
+    };
   };
 }
 
