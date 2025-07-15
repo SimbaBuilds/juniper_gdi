@@ -25,9 +25,7 @@ interface AgentResponseContent {
   resourceCount?: number;
   resourceContent?: string;
   observationData?: {
-    status: string;
-    message: string;
-    results?: Array<{
+    results: Array<{
       id: string;
       title: string;
       content: string;
@@ -207,17 +205,19 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
         const actualAgentName = extractActualAgentName(entry.message) || entry.agent_name;
         const displayAgentName = actualAgentName || 'Agent';
         
-        const result = {
+        const result: AgentStep = {
           id: stepId,
-          type: 'agent_response',
+          type: 'agent_response' as const,
           timestamp: entry.timestamp,
           agent_name: actualAgentName || entry.agent_name,
           title: `${displayAgentName} Observation`,
           content: entry.message,
           extractedContent: {
             observation: `Status: ${observationData.status}\nMessage: ${observationData.message}`,
-            observationData: observationData
-          } as AgentResponseContent,
+            observationData: observationData.results ? {
+              results: observationData.results
+            } : undefined
+          },
           details: {
             logger: entry.logger,
             module: entry.module,
@@ -284,7 +284,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
         resourceCount,
         resourceContent,
         associatedResources: parsedResources.length > 0 ? parsedResources : undefined
-      } as AgentResponseContent,
+      },
       details: {
         logger: entry.logger,
         module: entry.module,

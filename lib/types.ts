@@ -82,6 +82,20 @@ export interface AgentStep {
       parameters?: Record<string, any>;
       example?: string;
     };
+    observationData?: {
+      results: Array<{
+        id: string;
+        title: string;
+        content: string;
+        type: string;
+        final_score?: number;
+        relevance_score?: number;
+        similarity_score?: number;
+        last_accessed?: string;
+        instructions?: string;
+        created_at?: string;
+      }>;
+    };
   };
 }
 

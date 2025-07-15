@@ -312,13 +312,12 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                         <div className="font-medium text-sm text-orange-800 dark:text-orange-300 mb-1">👁️ Observation</div>
                         <p className="text-sm text-orange-700 dark:text-orange-200">{step.extractedContent.observation}</p>
                         
-                        {console.log('Checking observationData:', step.extractedContent.observationData)}
                         {step.extractedContent.observationData?.results && (
                           <div className="mt-3 space-y-3">
                             <div className="font-medium text-sm text-orange-800 dark:text-orange-300 flex items-center gap-2">
                               <span>📋 Found {step.extractedContent.observationData.results.length} matching resources:</span>
                             </div>
-                            {step.extractedContent.observationData.results.map((result, idx) => (
+                            {step.extractedContent.observationData.results.map((result: any, idx: number) => (
                               <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
                                 <div className="flex items-start justify-between mb-3">
                                   <div className="flex-1 min-w-0">
@@ -428,14 +427,6 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                               <pre className="text-xs bg-gray-100 dark:bg-gray-700 p-1 rounded mt-1 overflow-x-auto">
                                 {JSON.stringify(step.extractedContent.toolDetails.parameters, null, 2)}
                               </pre>
-                            </div>
-                          )}
-                          {step.extractedContent.toolDetails.example && (
-                            <div>
-                              <span className="font-medium text-xs text-yellow-800 dark:text-yellow-200">Example:</span>
-                              <code className="text-xs bg-gray-100 dark:bg-gray-700 p-1 rounded block mt-1">
-                                {step.extractedContent.toolDetails.example}
-                              </code>
                             </div>
                           )}
                         </div>
