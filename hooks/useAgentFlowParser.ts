@@ -22,6 +22,24 @@ interface AgentResponseContent {
     parameters?: Record<string, unknown>;
     example?: string;
   };
+  resourceCount?: number;
+  resourceContent?: string;
+  observationData?: {
+    status: string;
+    message: string;
+    results?: Array<{
+      id: string;
+      title: string;
+      content: string;
+      type: string;
+      instructions?: string;
+      relevance_score?: number;
+      similarity_score?: number;
+      final_score?: number;
+      last_accessed?: string;
+      created_at?: string;
+    }>;
+  };
 }
 
 export function useAgentFlowParser(logData: string | null) {
@@ -167,9 +185,121 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
 function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null {
   const stepId = `step_${index}`;
 
-  // Skip duplicates first - "Adding observation to messages" entries are always duplicates
+  // Handle "Adding observation to messages" entries - these contain structured observation data
   if (entry.message.includes('Adding observation to messages:')) {
+    console.log('Found observation message:', entry.message);
+    
+    // Simple approach: find the JSON starting from the first { and ending at the last }
+    const jsonStart = entry.message.indexOf('{');
+    const jsonEnd = entry.message.lastIndexOf('}');
+    
+    console.log('JSON positions:', { jsonStart, jsonEnd });
+    
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      try {
+        const jsonString = entry.message.substring(jsonStart, jsonEnd + 1);
+        console.log('Extracted JSON string:', jsonString);
+        
+        const observationData = JSON.parse(jsonString);
+        console.log('Parsed observation data:', observationData);
+        
+        // Extract the actual agent name from the entry
+        const actualAgentName = extractActualAgentName(entry.message) || entry.agent_name;
+        const displayAgentName = actualAgentName || 'Agent';
+        
+        const result = {
+          id: stepId,
+          type: 'agent_response',
+          timestamp: entry.timestamp,
+          agent_name: actualAgentName || entry.agent_name,
+          title: `${displayAgentName} Observation`,
+          content: entry.message,
+          extractedContent: {
+            observation: `Status: ${observationData.status}\nMessage: ${observationData.message}`,
+            observationData: observationData
+          } as AgentResponseContent,
+          details: {
+            logger: entry.logger,
+            module: entry.module,
+            funcName: entry.funcName,
+            component: entry.component,
+            action: entry.action,
+            pathname: entry.pathname,
+            lineno: entry.lineno,
+            exception: entry.exception,
+            level: entry.level
+          },
+          user_id: entry.user_id,
+          request_id: entry.request_id,
+          status: observationData.status === 'success' ? 'success' : 'error'
+        };
+        
+        console.log('Returning parsed step:', result);
+        return result;
+      } catch (error) {
+        console.warn('Failed to parse observation JSON:', error, 'Raw message:', entry.message);
+        return null;
+      }
+    }
+    console.log('No valid JSON found in message');
     return null;
+  }
+
+  // Check for resource addition messages
+  const resourceAdditionMatch = entry.message.match(/(\w+\s+Agent)\s+added\s+(\d+)\s+relevant\s+resources\s+to\s+chat\s+context(?::\s+([\s\S]*))?/);
+  if (resourceAdditionMatch) {
+    const agentName = resourceAdditionMatch[1];
+    const resourceCount = parseInt(resourceAdditionMatch[2]);
+    const resourceContent = resourceAdditionMatch[3] || '';
+    
+    // Parse structured resources if available
+    let parsedResources: Array<{
+      id: string;
+      title: string;
+      content: string;
+    }> = [];
+    
+    if (resourceContent && resourceContent.includes('Relevant Resources:')) {
+      // Extract individual resource entries
+      const resourceMatches = resourceContent.matchAll(/- \[ID: ([^\]]+)\] Title: "([^"]+)" \| Content: "([^"]+)"/g);
+      
+      for (const match of resourceMatches) {
+        parsedResources.push({
+          id: match[1],
+          title: match[2],
+          content: match[3]
+        });
+      }
+    }
+    
+    return {
+      id: stepId,
+      type: 'resource_retrieval',
+      timestamp: entry.timestamp,
+      agent_name: agentName,
+      title: `Injected Resources`,
+      content: resourceContent ? `Added ${resourceCount} relevant resources to chat context:\n${resourceContent}` : `Added ${resourceCount} relevant resources to chat context`,
+      extractedContent: { 
+        action: entry.message,
+        resourceCount,
+        resourceContent,
+        associatedResources: parsedResources.length > 0 ? parsedResources : undefined
+      } as AgentResponseContent,
+      details: {
+        logger: entry.logger,
+        module: entry.module,
+        funcName: entry.funcName,
+        component: entry.component,
+        action: entry.action,
+        pathname: entry.pathname,
+        lineno: entry.lineno,
+        exception: entry.exception,
+        level: entry.level
+      },
+      user_id: entry.user_id,
+      request_id: entry.request_id,
+      status: 'success'
+    };
   }
 
   // 1. TRUE SYSTEM PROMPT: Only include if a dedicated field or clear message

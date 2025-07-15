@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,13 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(
     conversations.length > 0 ? conversations[0].id : null
   );
+  
+  // Auto-select first conversation when conversations change
+  useEffect(() => {
+    if (conversations.length > 0 && !selectedConversation) {
+      setSelectedConversation(conversations[0].id);
+    }
+  }, [conversations, selectedConversation]);
   
   const [flowOptions, setFlowOptions] = useState<FlowViewOptions>({
     showSystemPrompts: true,

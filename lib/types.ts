@@ -67,6 +67,8 @@ export interface AgentStep {
     response?: string;
     fullContent?: string;
     systemPrompt?: string;
+    resourceCount?: number;
+    resourceContent?: string;
     associatedResources?: Array<{
       id: string;
       title: string;

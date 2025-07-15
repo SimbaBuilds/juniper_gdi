@@ -21,7 +21,7 @@ export function LogViewer() {
   const [logData, setLogData] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
   const [selectedTab, setSelectedTab] = useState('logs');
-  const [mainTab, setMainTab] = useState('logs');
+  const [mainTab, setMainTab] = useState('flow');
   const [availableLogFiles, setAvailableLogFiles] = useState<string[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(false);
   const { isDark, toggleDarkMode } = useDarkMode();
