@@ -217,9 +217,9 @@ export function LogViewer() {
               </div>
             )}
             
-            <Button onClick={refreshLogFiles} variant="outline" size="sm" disabled={loadingFiles}>
+            {/* <Button onClick={refreshLogFiles} variant="outline" size="sm" disabled={loadingFiles}>
               {loadingFiles ? 'Loading...' : 'Refresh'}
-            </Button>
+            </Button> */}
             
             {fileName && (
               <span className="text-sm text-muted-foreground flex items-center gap-1">

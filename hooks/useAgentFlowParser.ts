@@ -183,6 +183,52 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
 function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null {
   const stepId = `step_${index}`;
 
+  // Handle initial request messages (chat requests)
+  if (entry.message.includes('Received chat request:')) {
+    // More robust message parsing to handle apostrophes within the message
+    const messageMatch = entry.message.match(/message='(.*?)',\s*history_count=/);
+    const requestIdMatch = entry.message.match(/request_id=([^,\s]+)/);
+    const historyCountMatch = entry.message.match(/history_count=(\d+)/);
+    const preferencesMatch = entry.message.match(/preferences=\{([^}]+)\}/);
+    
+    const userMessage = messageMatch ? messageMatch[1] : 'Unknown request';
+    const requestId = requestIdMatch ? requestIdMatch[1] : entry.request_id;
+    const historyCount = historyCountMatch ? parseInt(historyCountMatch[1]) : 0;
+    const preferences = preferencesMatch ? preferencesMatch[1] : '';
+    
+    return {
+      id: stepId,
+      type: 'initial_request',
+      timestamp: entry.timestamp,
+      agent_name: 'User',
+      title: 'Initial Request',
+      content: userMessage,
+      extractedContent: {
+        response: userMessage,
+        fullContent: entry.message,
+        requestDetails: {
+          requestId: requestId || '',
+          historyCount,
+          preferences
+        }
+      },
+      details: {
+        logger: entry.logger,
+        module: entry.module,
+        funcName: entry.funcName,
+        component: entry.component,
+        action: entry.action,
+        pathname: entry.pathname,
+        lineno: entry.lineno,
+        exception: entry.exception,
+        level: entry.level
+      },
+      user_id: entry.user_id,
+      request_id: entry.request_id,
+      status: 'success'
+    };
+  }
+
   // Handle "Adding observation to messages" entries - these contain structured observation data
   if (entry.message.includes('Adding observation to messages:')) {
     console.log('Found observation message:', entry.message);

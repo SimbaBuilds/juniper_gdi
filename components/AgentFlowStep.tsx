@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronRight, Clock, Bot, Cog, Database, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ChevronDown, ChevronRight, Clock, Bot, Cog, Database, AlertTriangle, CheckCircle, MessageSquare } from 'lucide-react';
 import { AgentStep } from '@/lib/types';
 
 interface AgentFlowStepProps {
@@ -176,6 +176,8 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
 
   const getStepIcon = (type: AgentStep['type']) => {
     switch (type) {
+      case 'initial_request':
+        return <MessageSquare className="w-5 h-5" />;
       case 'system_prompt':
         return <Cog className="w-5 h-5" />;
       case 'tool_execution':
@@ -193,6 +195,8 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
 
   const getStepColor = (type: AgentStep['type']) => {
     switch (type) {
+      case 'initial_request':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'system_prompt':
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'tool_execution':
@@ -221,6 +225,8 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
 
   const formatStepType = (type: AgentStep['type']) => {
     switch (type) {
+      case 'initial_request':
+        return 'Initial Request';
       case 'system_prompt':
         return 'System Prompt';
       case 'tool_execution':
@@ -285,8 +291,37 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
               <div className="space-y-3 pr-4 min-w-max">
                 <h3 className="font-medium">{step.title}</h3>
             
-            {/* Special handling for system prompts */}
-            {step.type === 'system_prompt' ? (
+            {/* Special handling for initial requests */}
+            {step.type === 'initial_request' ? (
+              <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg border-l-4 border-yellow-400">
+                <div className="font-medium text-sm text-yellow-800 dark:text-yellow-300 mb-3 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  User Request
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                    <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100 mb-2">Message:</div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{step.content}</p>
+                  </div>
+                  {step.extractedContent?.requestDetails && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      <div className="bg-white dark:bg-gray-800 p-2 rounded border border-yellow-200 dark:border-yellow-800">
+                        <div className="font-medium text-xs text-yellow-800 dark:text-yellow-200">Request ID:</div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 font-mono">{step.extractedContent.requestDetails.requestId}</p>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 p-2 rounded border border-yellow-200 dark:border-yellow-800">
+                        <div className="font-medium text-xs text-yellow-800 dark:text-yellow-200">History Count:</div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">{step.extractedContent.requestDetails.historyCount}</p>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 p-2 rounded border border-yellow-200 dark:border-yellow-800">
+                        <div className="font-medium text-xs text-yellow-800 dark:text-yellow-200">Preferences:</div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">{step.extractedContent.requestDetails.preferences}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : step.type === 'system_prompt' ? (
               <SystemPromptFormatter content={step.content} />
             ) : (
               <>

@@ -50,7 +50,7 @@ export interface LogStats {
 // Agent Flow specific types
 export interface AgentStep {
   id: string;
-  type: 'system_prompt' | 'tool_execution' | 'resource_retrieval' | 'agent_response' | 'error';
+  type: 'initial_request' | 'system_prompt' | 'tool_execution' | 'resource_retrieval' | 'agent_response' | 'error';
   timestamp: string;
   agent_name?: string;
   title: string;
@@ -69,6 +69,11 @@ export interface AgentStep {
     systemPrompt?: string;
     resourceCount?: number;
     resourceContent?: string;
+    requestDetails?: {
+      requestId: string;
+      historyCount: number;
+      preferences: string;
+    };
     associatedResources?: Array<{
       id: string;
       title: string;
@@ -116,6 +121,7 @@ export interface AgentConversation {
 }
 
 export interface FlowViewOptions {
+  showInitialRequests: boolean;
   showSystemPrompts: boolean;
   showToolExecutions: boolean;
   showResourceRetrievals: boolean;
