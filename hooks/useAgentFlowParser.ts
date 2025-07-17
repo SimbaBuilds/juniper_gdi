@@ -168,8 +168,10 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
           conversation.steps.push(step);
           conversation.end_time = entry.timestamp;
           
-          // Update summary
-          conversation.summary.total_steps++;
+          // Update summary - don't count action progress steps
+          if (!step.title.endsWith(' Action Progress')) {
+            conversation.summary.total_steps++;
+          }
           
           // Use the extracted agent name from the step (Chat Agent, Config Agent, etc.)
           if (step.agent_name && !conversation.summary.agents_involved.includes(step.agent_name)) {
@@ -263,8 +265,10 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
         conversation.steps.push(step);
         conversation.end_time = entry.timestamp;
         
-        // Update summary
-        conversation.summary.total_steps++;
+        // Update summary - don't count action progress steps
+        if (!step.title.endsWith(' Action Progress')) {
+          conversation.summary.total_steps++;
+        }
         
         // Use the extracted agent name from the step (Chat Agent, Config Agent, etc.)
         if (step.agent_name && !conversation.summary.agents_involved.includes(step.agent_name)) {
@@ -326,6 +330,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
           preferences
         }
       },
+      actionNumber: null,
       details: {
         logger: entry.logger,
         module: entry.module,
@@ -345,7 +350,6 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
 
   // Handle "Adding observation to messages" entries - these contain structured observation data
   if (entry.message.includes('Adding observation to messages:')) {
-    console.log('Found observation message:', entry.message);
     
     // Extract the observation content after "Adding observation to messages:"
     const observationPrefix = 'Adding observation to messages:';
@@ -357,7 +361,6 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     // Remove any "Observation: " prefix that might be there
     const cleanContent = observationContent.replace(/^Observation:\s*/, '');
     
-    console.log('Extracted observation content:', cleanContent);
     
     // Extract the actual agent name from the entry
     const actualAgentName = extractActualAgentName(entry.message) || entry.agent_name;
@@ -374,7 +377,6 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
       if (jsonMatch) {
         const jsonString = jsonMatch[1];
         parsedObservation = JSON.parse(jsonString);
-        console.log('Parsed observation JSON:', parsedObservation);
         
         // Handle different data structures
         if (parsedObservation.status && parsedObservation.message) {
@@ -444,7 +446,6 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
         }
       }
     } catch (error) {
-      console.log('Could not parse as JSON, treating as plain text');
       // Keep the original text if JSON parsing fails
     }
     
@@ -459,6 +460,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
         observation: observationText,
         observationData: structuredData || undefined
       },
+      actionNumber: null,
       details: {
         logger: entry.logger,
         module: entry.module,
@@ -475,7 +477,6 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
       status: 'success'
     };
     
-    console.log('Returning parsed step:', result);
     return result;
   }
 
@@ -519,6 +520,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
         resourceContent,
         associatedResources: parsedResources.length > 0 ? parsedResources : undefined
       },
+      actionNumber: null,
       details: {
         logger: entry.logger,
         module: entry.module,
@@ -553,6 +555,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
         response: promptText,
         systemPrompt: promptText
       },
+      actionNumber: null,
       details: {
         logger: entry.logger,
         module: entry.module,
@@ -582,6 +585,8 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     entry.message.includes('Executing service tool') ||
     entry.message.includes('Successfully executed service tool') ||
     entry.message.includes('Tool:') && entry.message.includes('Parameters:') ||
+    // Action execution tracking
+    entry.message.match(/Action\s+\d+\/\d+\s+executed/) ||
     // Resource fetching
     entry.message.includes('Fetching truncated resources') ||
     entry.message.includes('Found') && entry.message.includes('truncated resources') ||
@@ -671,6 +676,13 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     content = entry.message;
   }
   
+  // 3.5. ACTION EXECUTION TRACKING - Action progress messages
+  else if (entry.message.match(/Action\s+\d+\/\d+\s+executed/)) {
+    stepType = 'agent_response';
+    title = `${displayAgentName} Action Progress`;
+    content = entry.message;
+  }
+  
   // 4. OBSERVATIONS WITH RESOURCES - Key observations that contain resources
   else if (entry.message.includes('Observation:') && 
            (entry.message.includes('Associated Resources:') || 
@@ -718,6 +730,10 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     };
   }
 
+  // Extract action number if present
+  const actionNumber = extractActionNumber(entry.message);
+  
+
   return {
     id: stepId,
     type: stepType,
@@ -726,6 +742,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     title,
     content,
     extractedContent,
+    actionNumber,
     details: {
       logger: entry.logger,
       module: entry.module,
@@ -886,6 +903,18 @@ function extractAgentContent(message: string): AgentResponseContent {
   }
 
   return result;
+}
+
+function extractActionNumber(message: string): { current: number; total: number } | null {
+  // Extract action numbers from messages like "Action 1/8 executed"
+  const actionMatch = message.match(/Action\s+(\d+)\/(\d+)\s+executed/);
+  if (actionMatch) {
+    return {
+      current: parseInt(actionMatch[1]),
+      total: parseInt(actionMatch[2])
+    };
+  }
+  return null;
 }
 
 function parseAssociatedResources(resourcesText: string): Array<{

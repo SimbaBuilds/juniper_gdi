@@ -60,6 +60,7 @@ export interface AgentStep {
   request_id?: string;
   duration?: number;
   status?: 'success' | 'error' | 'pending';
+  actionNumber?: { current: number; total: number } | null;
   extractedContent?: {
     thought?: string;
     action?: string;

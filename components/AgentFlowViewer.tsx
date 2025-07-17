@@ -59,7 +59,9 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
   };
 
   const getFlowStats = () => {
-    const totalSteps = conversations.reduce((sum, conv) => sum + conv.steps.length, 0);
+    const totalSteps = conversations.reduce((sum, conv) => 
+      sum + conv.steps.filter(step => !step.title.endsWith(' Action Progress')).length, 0
+    );
     const totalErrors = conversations.reduce((sum, conv) => sum + conv.summary.errors, 0);
     const allAgents = new Set(conversations.flatMap(conv => conv.summary.agents_involved));
     const allTools = new Set(conversations.flatMap(conv => conv.summary.tools_used));
@@ -279,7 +281,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">
-                      {filteredSteps.length} of {selectedConv.steps.length} steps shown
+                      {filteredSteps.filter(step => !step.title.endsWith(' Action Progress')).length} of {selectedConv.steps.filter(step => !step.title.endsWith(' Action Progress')).length} steps shown
                     </Badge>
                     <Badge variant="outline">
                       {selectedConv.summary.agents_involved.length} agents
@@ -321,13 +323,17 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                         No steps match the current filters.
                       </div>
                     ) : (
-                      filteredSteps.map((step, index) => (
-                        <AgentFlowStep
-                          key={step.id}
-                          step={step}
-                          stepNumber={index + 1}
-                        />
-                      ))
+                      filteredSteps.map((step, index) => {
+                        // Calculate step number excluding action progress steps
+                        const stepNumber = filteredSteps.slice(0, index + 1).filter(s => !s.title.endsWith(' Action Progress')).length;
+                        return (
+                          <AgentFlowStep
+                            key={step.id}
+                            step={step}
+                            stepNumber={stepNumber}
+                          />
+                        );
+                      })
                     )}
                   </div>
                 ) : (
