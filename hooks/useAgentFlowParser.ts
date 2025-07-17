@@ -86,7 +86,120 @@ export function useAgentFlowParser(logData: string | null) {
 }
 
 function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
-  // Group by conversation more inclusively - combine by user_id primarily, then request_id as secondary
+  // Find the boundaries of the main conversation
+  let startIndex = -1;
+  let endIndex = -1;
+  
+  for (let i = 0; i < logEntries.length; i++) {
+    const entry = logEntries[i];
+    
+    // Look for authentication successful as start
+    if (startIndex === -1 && entry.message.includes('Authentication successful')) {
+      startIndex = i;
+    }
+    
+    // Look for request completed as end
+    if (entry.message.includes('Request completed')) {
+      endIndex = i;
+      break;
+    }
+  }
+  
+  // If we found both boundaries, create one main conversation
+  if (startIndex !== -1 && endIndex !== -1) {
+    const conversationMap: Map<string, LogEntry[]> = new Map();
+    
+    // Get the user_id and request_id from entries within the range
+    let mainUserId = 'unknown_user';
+    let mainRequestId = '';
+    
+    for (let i = startIndex; i <= endIndex; i++) {
+      const entry = logEntries[i];
+      if (entry.user_id && mainUserId === 'unknown_user') {
+        mainUserId = entry.user_id;
+      }
+      if (entry.request_id && !mainRequestId) {
+        mainRequestId = entry.request_id;
+      }
+    }
+    
+    const mainConversationId = mainRequestId ? `${mainUserId}_${mainRequestId}` : mainUserId;
+    
+    // Add all entries from start to end to the main conversation
+    conversationMap.set(mainConversationId, logEntries.slice(startIndex, endIndex + 1));
+    
+    // Process any remaining entries before or after the main conversation
+    const remainingEntries = [
+      ...logEntries.slice(0, startIndex),
+      ...logEntries.slice(endIndex + 1)
+    ];
+    
+    remainingEntries.forEach(entry => {
+      const conversationId = entry.user_id || 'unknown_user';
+      if (!conversationMap.has(conversationId)) {
+        conversationMap.set(conversationId, []);
+      }
+      conversationMap.get(conversationId)!.push(entry);
+    });
+    
+    const parsedConversations: AgentConversation[] = [];
+    conversationMap.forEach((entries, conversationId) => {
+      const conversation = {
+        id: conversationId,
+        user_id: entries[0].user_id,
+        request_id: entries[0].request_id,
+        start_time: entries[0].timestamp,
+        end_time: entries[entries.length - 1].timestamp,
+        steps: [] as AgentStep[],
+        entries: entries,
+        summary: {
+          total_steps: 0,
+          agents_involved: [] as string[],
+          tools_used: [] as string[],
+          resources_retrieved: 0,
+          errors: 0
+        }
+      };
+
+      entries.forEach((entry, index) => {
+        const step = convertLogEntryToStep(entry, index);
+        
+        if (step) {
+          conversation.steps.push(step);
+          conversation.end_time = entry.timestamp;
+          
+          // Update summary
+          conversation.summary.total_steps++;
+          
+          // Use the extracted agent name from the step (Chat Agent, Config Agent, etc.)
+          if (step.agent_name && !conversation.summary.agents_involved.includes(step.agent_name)) {
+            conversation.summary.agents_involved.push(step.agent_name);
+          }
+          
+          if (entry.level === 'ERROR') {
+            conversation.summary.errors++;
+          }
+          
+          if (step.type === 'resource_retrieval') {
+            conversation.summary.resources_retrieved++;
+          }
+          
+          if (step.type === 'tool_execution') {
+            const toolName = extractToolName(entry.message);
+            if (toolName && !conversation.summary.tools_used.includes(toolName)) {
+              conversation.summary.tools_used.push(toolName);
+            }
+          }
+        }
+      });
+
+      parsedConversations.push(conversation);
+    });
+
+    return parsedConversations;
+  }
+  
+  // Fallback to original grouping logic if boundaries not found
   const conversationMap: Map<string, LogEntry[]> = new Map();
   
   logEntries.forEach(entry => {
@@ -133,6 +246,7 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
       start_time: entries[0].timestamp,
       end_time: entries[entries.length - 1].timestamp,
       steps: [] as AgentStep[],
+      entries: entries,
       summary: {
         total_steps: 0,
         agents_involved: [] as string[],

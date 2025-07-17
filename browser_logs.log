@@ -1,0 +1,425 @@
+🔍 Starting conversation parsing with 354 entries
+useAgentFlowParser.ts:100 🔍 Unknown entry sample: agent=undefined, timestamp=2025-07-17T13:10:26.386390+00:00
+useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083 via time proximity
+useAgentFlowParser.ts:192 ⚡ Entry grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083 (time diff: 0 min)
+useAgentFlowParser.ts:192 ⚡ Entry grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083 (time diff: 0.0022500000000000003 min)
+useAgentFlowParser.ts:192 ⚡ Entry grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083 (time diff: 0 min)
+4useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083 via time proximity
+10useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ LLM Classifier grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+2useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ LLM Classifier grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+useAgentFlowParser.ts:192 ⚡ Integrations Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+useAgentFlowParser.ts:192 ⚡ Integrations Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0.026949999999999998 min)
+14useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+12useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+13useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+2useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+27useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integrations Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0.003266666666666667 min)
+useAgentFlowParser.ts:192 ⚡ Integrations Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0.0016166666666666666 min)
+13useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integrations Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0.008183333333333332 min)
+42useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+11useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+13useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+13useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+13useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0.000016666666666666667 min)
+13useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0.000016666666666666667 min)
+19useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+9useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+2useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Retrieval Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+9useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ retrieval_agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+useAgentFlowParser.ts:192 ⚡ retrieval_agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0.004016666666666667 min)
+useAgentFlowParser.ts:192 ⚡ retrieval_agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0.002116666666666667 min)
+2useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Retrieval Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+13useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+2useAgentFlowParser.ts:192 ⚡ Retrieval Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+3useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+13useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+2useAgentFlowParser.ts:192 ⚡ Integration Completion Agent grouped with 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 (time diff: 0 min)
+26useAgentFlowParser.ts:272 🔗 Unknown entry joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via time proximity
+2useAgentFlowParser.ts:118 🔗 Entry without user_id joined 56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845 via request_id
+useAgentFlowParser.ts:286 🏁 Final conversations:
+useAgentFlowParser.ts:288    unknown_user: 6 entries
+useAgentFlowParser.ts:288    56a2c117-6486-4ca5-a57d-6c2e877e7083: 9 entries
+useAgentFlowParser.ts:288    56a2c117-6486-4ca5-a57d-6c2e877e7083_d778a130-667b-444a-acb0-b94caea82845: 339 entries
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: Scripts successfully fetched and cached with key: integration_scripts_Gmail_56a2c117-6486-4ca5-a57d-6c2e877e7083. Provide this cache key to the integrations agent.
+useAgentFlowParser.ts:410 Extracted observation content: Scripts successfully fetched and cached with key: integration_scripts_Gmail_56a2c117-6486-4ca5-a57d-6c2e877e7083. Provide this cache key to the integrations agent.
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: The cache key is integration_scripts_Gmail_56a2c117-6486-4ca5-a57d-6c2e877e7083.
+useAgentFlowParser.ts:410 Extracted observation content: The cache key is integration_scripts_Gmail_56a2c117-6486-4ca5-a57d-6c2e877e7083.
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: **Email Service Integration Completion Steps/Script:**
+
+Step 1: Use appropriate service tool(s) to fetch 10 samples of the user's sent emails with full content and recipients
+
+Step 2: Choose 4 representative samples and call the integration completion agent with:
+  a. content: full body content from the fetched emails or, if truncated, the cache key and an indication of which 4 emails you've selected
+  b. instructions: "Read before writing an email on the
+   user's behalf"
+  c. tags: "Email"
+  d. title: user's sent email samples
+  e. type: "sample"
+
+Step 3: Call integration completion agent with 8 recent unique contacts using recipient fields of previously fetched emails.  Include:
+  a. content: names and email addresses from recipient 
+  fields
+  b. tags: "Email", "Contacts"
+  c. title: user's frequent contacts
+  d. type: "memory"
+
+Step 4: Tell chat agent they can respond with someone like: "I've sampled some of your sent emails so we can match your writing style when drafting emails.  You can view and edit this data in the Repo Screen or via chat any time.  I also catalogued frequent contacts including [2 names/emails]. You can reference these contacts by first name and we will know who to send the email to."
+
+
+---
+
+**Email Service Integration Completion Steps/Script:**
+
+Step 1: Use appropriate service tool(s) to fetch 10 samples of the user's sent emails with full content and recipients
+
+Step 2: Choose 4 representative samples and call the integration completion agent with:
+  a. content: full body content from the fetched emails or, if truncated, the cache key and an indication of which 4 emails you've selected
+  b. instructions: "Read before writing an email on the
+   user's behalf"
+  c. tags: "Email"
+  d. title: user's sent email samples
+  e. type: "sample"
+
+Step 3: Call integration completion agent with 8 recent unique contacts using recipient fields of previously fetched emails.  Include:
+  a. content: names and email addresses from recipient 
+  fields
+  b. tags: "Email", "Contacts"
+  c. title: user's frequent contacts
+  d. type: "memory"
+
+Step 4: Tell chat agent they can respond with someone like: "I've sampled some of your sent emails so we can match your writing style when drafting emails.  You can view and edit this data in the Repo Screen or via chat any time.  I also catalogued frequent contacts including [2 names/emails]. You can reference these contacts by first name and we will know who to send the email to."
+
+
+---
+
+
+Also, please provide a concise description of the key actions we can take on the user's behalf using information about the available service tools.
+useAgentFlowParser.ts:410 Extracted observation content: **Email Service Integration Completion Steps/Script:**
+
+Step 1: Use appropriate service tool(s) to fetch 10 samples of the user's sent emails with full content and recipients
+
+Step 2: Choose 4 representative samples and call the integration completion agent with:
+  a. content: full body content from the fetched emails or, if truncated, the cache key and an indication of which 4 emails you've selected
+  b. instructions: "Read before writing an email on the
+   user's behalf"
+  c. tags: "Email"
+  d. title: user's sent email samples
+  e. type: "sample"
+
+Step 3: Call integration completion agent with 8 recent unique contacts using recipient fields of previously fetched emails.  Include:
+  a. content: names and email addresses from recipient 
+  fields
+  b. tags: "Email", "Contacts"
+  c. title: user's frequent contacts
+  d. type: "memory"
+
+Step 4: Tell chat agent they can respond with someone like: "I've sampled some of your sent emails so we can match your writing style when drafting emails.  You can view and edit this data in the Repo Screen or via chat any time.  I also catalogued frequent contacts including [2 names/emails]. You can reference these contacts by first name and we will know who to send the email to."
+
+
+---
+
+**Email Service Integration Completion Steps/Script:**
+
+Step 1: Use appropriate service tool(s) to fetch 10 samples of the user's sent emails with full content and recipients
+
+Step 2: Choose 4 representative samples and call the integration completion agent with:
+  a. content: full body content from the fetched emails or, if truncated, the cache key and an indication of which 4 emails you've selected
+  b. instructions: "Read before writing an email on the
+   user's behalf"
+  c. tags: "Email"
+  d. title: user's sent email samples
+  e. type: "sample"
+
+Step 3: Call integration completion agent with 8 recent unique contacts using recipient fields of previously fetched emails.  Include:
+  a. content: names and email addresses from recipient 
+  fields
+  b. tags: "Email", "Contacts"
+  c. title: user's frequent contacts
+  d. type: "memory"
+
+Step 4: Tell chat agent they can respond with someone like: "I've sampled some of your sent emails so we can match your writing style when drafting emails.  You can view and edit this data in the Repo Screen or via chat any time.  I also catalogued frequent contacts including [2 names/emails]. You can reference these contacts by first name and we will know who to send the email to."
+
+
+---
+
+
+Also, please provide a concise description of the key actions we can take on the user's behalf using information about the available service tools.
+useAgentFlowParser.ts:497 Could not parse as JSON, treating as plain text
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: Available service tools:
+- gmail_get_sent_emails_with_recipients: Get recently sent emails with recipient information and optionally full content (Category: General)
+useAgentFlowParser.ts:410 Extracted observation content: Available service tools:
+- gmail_get_sent_emails_with_recipients: Get recently sent emails with recipient information and optionally full content (Category: General)
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: Tool: gmail_get_sent_emails_with_recipients
+Display Name: Gmail Get Sent Emails With Recipients
+Description: Get recently sent emails with recipient information and optionally full content
+Service ID: a6fd4618-0cdc-4506-a371-df48e6413ea3
+Category: General
+Version: 1.0
+Active: True
+Parameters: {
+  "days_back": {
+    "type": "integer",
+    "description": "Number of days to look back for sent emails (default 7)"
+  },
+  "max_results": {
+    "type": "integer",
+    "description": "Maximum number of results (1-50, default 10)"
+  },
+  "include_content": {
+    "type": "boolean",
+    "description": "Include full email body content (default false)"
+  }
+}
+Returns: "\"JSON list of sent emails with recipient information and optionally full body content\""
+Example: "\"Action: gmail_mail_get_sent_emails_with_recipients: \\\"{ \\\"max_results\\\": 10, \\\"days_back\\\": 3\\\", \\\"include_content\\\": true}\\\" \u201c"
+
+User's Email Address: cameron.hightower@proton.me
+
+useAgentFlowParser.ts:410 Extracted observation content: Tool: gmail_get_sent_emails_with_recipients
+Display Name: Gmail Get Sent Emails With Recipients
+Description: Get recently sent emails with recipient information and optionally full content
+Service ID: a6fd4618-0cdc-4506-a371-df48e6413ea3
+Category: General
+Version: 1.0
+Active: True
+Parameters: {
+  "days_back": {
+    "type": "integer",
+    "description": "Number of days to look back for sent emails (default 7)"
+  },
+  "max_results": {
+    "type": "integer",
+    "description": "Maximum number of results (1-50, default 10)"
+  },
+  "include_content": {
+    "type": "boolean",
+    "description": "Include full email body content (default false)"
+  }
+}
+Returns: "\"JSON list of sent emails with recipient information and optionally full body content\""
+Example: "\"Action: gmail_mail_get_sent_emails_with_recipients: \\\"{ \\\"max_results\\\": 10, \\\"days_back\\\": 3\\\", \\\"include_content\\\": true}\\\" \u201c"
+
+User's Email Address: cameron.hightower@proton.me
+useAgentFlowParser.ts:497 Could not parse as JSON, treating as plain text
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: [
+  {
+    "id": "19802c838f5860b5",
+    "subject": "hi I'm juniper your bff",
+    "from": "cameron@hightower-ai.com",
+    "date": "Sun, 13 Jul 2025 00:55:33 -0700",
+    "snippet": "hi I&#39;m juniper your bff",
+    "body": "hi I'm juniper your bff",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "19801438a2ae8b5f",
+    "subject": "unsubscribe",
+    "from": "Cameron Hightower <cameron.hightower@simbabuilds.com>",
+    "date": "Sat, 12 Jul 2025 17:51:00 -0700",
+    "snippet": "This message was automatically generated by Gmail.",
+    "body": "This message was automatically generated by Gmail.\r\n",
+    "to": "32.MRTVIVLHO5XUIQKLOVWEKS3RNRCUCR2ZIFJFS5DXGY4HI2KJK5BGYULOGFFFQSJ5@unsubscribe2.customer.io"
+  },
+  {
+    "id": "197f84d23fef1e2a",
+    "subject": "Test from Juniper - Async 
+
+[CACHED CONTENT - Full content stored in cache with key: service_tool_gmail_get_sent_emails_with_recipients_4ab01918. Use fetch_from_cache tool to retrieve full content if needed.]
+useAgentFlowParser.ts:410 Extracted observation content: [
+  {
+    "id": "19802c838f5860b5",
+    "subject": "hi I'm juniper your bff",
+    "from": "cameron@hightower-ai.com",
+    "date": "Sun, 13 Jul 2025 00:55:33 -0700",
+    "snippet": "hi I&#39;m juniper your bff",
+    "body": "hi I'm juniper your bff",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "19801438a2ae8b5f",
+    "subject": "unsubscribe",
+    "from": "Cameron Hightower <cameron.hightower@simbabuilds.com>",
+    "date": "Sat, 12 Jul 2025 17:51:00 -0700",
+    "snippet": "This message was automatically generated by Gmail.",
+    "body": "This message was automatically generated by Gmail.\r\n",
+    "to": "32.MRTVIVLHO5XUIQKLOVWEKS3RNRCUCR2ZIFJFS5DXGY4HI2KJK5BGYULOGFFFQSJ5@unsubscribe2.customer.io"
+  },
+  {
+    "id": "197f84d23fef1e2a",
+    "subject": "Test from Juniper - Async 
+
+[CACHED CONTENT - Full content stored in cache with key: service_tool_gmail_get_sent_emails_with_recipients_4ab01918. Use fetch_from_cache tool to retrieve full content if needed.]
+useAgentFlowParser.ts:497 Could not parse as JSON, treating as plain text
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: [
+  {
+    "id": "19802c838f5860b5",
+    "subject": "hi I'm juniper your bff",
+    "from": "cameron@hightower-ai.com",
+    "date": "Sun, 13 Jul 2025 00:55:33 -0700",
+    "snippet": "hi I&#39;m juniper your bff",
+    "body": "hi I'm juniper your bff",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "19801438a2ae8b5f",
+    "subject": "unsubscribe",
+    "from": "Cameron Hightower <cameron.hightower@simbabuilds.com>",
+    "date": "Sat, 12 Jul 2025 17:51:00 -0700",
+    "snippet": "This message was automatically generated by Gmail.",
+    "body": "This message was automatically generated by Gmail.\r\n",
+    "to": "32.MRTVIVLHO5XUIQKLOVWEKS3RNRCUCR2ZIFJFS5DXGY4HI2KJK5BGYULOGFFFQSJ5@unsubscribe2.customer.io"
+  },
+  {
+    "id": "197f84d23fef1e2a",
+    "subject": "Test from Juniper - Async Service Tool",
+    "from": "cameron@hightower-ai.com",
+    "date": "Fri, 11 Jul 2025 00:04:54 -0700",
+    "snippet": "Hi there! This is a test email from Juniper via the use_service_tool_async function.",
+    "body": "Hi there! This is a test email from Juniper via the use_service_tool_async function.",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "197f84b9728c2950",
+    "subject": "Test from Juniper - Direct Function Call",
+    "from": "cameron@hightower-ai.com",
+    "date": "Fri, 11 Jul 2025 00:03:12 -0700",
+    "snippet": "Hi there! This is a test email from Juniper via direct function call.",
+    "body": "Hi there! This is a test email from Juniper via direct function call.",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "197f842de3ef9f62",
+    "subject": "Test from Juniper - Direct Function Call",
+    "from": "cameron@hightower-ai.com",
+    "date": "Thu, 10 Jul 2025 23:53:41 -0700",
+    "snippet": "Hi there! This is a test email from Juniper via direct function call.",
+    "body": "Hi there! This is a test email from Juniper via direct function call.",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "197f4ce6b6ff9740",
+    "subject": "Email sample",
+    "from": "Cameron Hightower <cameron@hightower-ai.com>",
+    "date": "Thu, 10 Jul 2025 09:47:38 -0500",
+    "snippet": "(Sample Email) Hi Austen, Not sure if we have, but I&#39;ve heard about the awesome program y&#39;all have going on at Gauntlet! CC&#39;ing Ben Lang who works on community at Cursor. Below is a",
+    "body": "(Sample Email)\r\n\r\nHi Austen,\r\n\r\nNot sure if we have, but I've heard about the awesome program y'all have\r\ngoing on at Gauntlet! CC'ing Ben Lang who works on community at Cursor.\r\n\r\nBelow is a tentative event plan:\r\n\r\n   - We are inviting top Cursor powers in Austin (expecting ~50) in both\r\n   tab request and agent request categories to get a good mix of traditional\r\n   and more new age programmers\r\n   - ice breaker and food/drinks (10-15 min)\r\n   - Cursor best practices, tips, MCPs, and workflows (20-45 min)\r\n   - 1 minute startup pitches and project sharing (15 min)\r\n   - networking/co-working (1-2 hours)\r\n\r\nBen can confirm, but I am sure some of your students who are less\r\nexperienced in Cursor are welcome!\r\n\r\nWe are flexible on date and time -- between June 30th an July 14th would be\r\nideal as we'll need some time for prep.  Thanks for your help!\r\n\r\nBest,\r\n\r\nCameron\r\n\r\n512-769-0768\r\n",
+    "to": "Cameron Hightower <cmrnhightower@gmail.com>"
+  }
+]
+useAgentFlowParser.ts:410 Extracted observation content: [
+  {
+    "id": "19802c838f5860b5",
+    "subject": "hi I'm juniper your bff",
+    "from": "cameron@hightower-ai.com",
+    "date": "Sun, 13 Jul 2025 00:55:33 -0700",
+    "snippet": "hi I&#39;m juniper your bff",
+    "body": "hi I'm juniper your bff",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "19801438a2ae8b5f",
+    "subject": "unsubscribe",
+    "from": "Cameron Hightower <cameron.hightower@simbabuilds.com>",
+    "date": "Sat, 12 Jul 2025 17:51:00 -0700",
+    "snippet": "This message was automatically generated by Gmail.",
+    "body": "This message was automatically generated by Gmail.\r\n",
+    "to": "32.MRTVIVLHO5XUIQKLOVWEKS3RNRCUCR2ZIFJFS5DXGY4HI2KJK5BGYULOGFFFQSJ5@unsubscribe2.customer.io"
+  },
+  {
+    "id": "197f84d23fef1e2a",
+    "subject": "Test from Juniper - Async Service Tool",
+    "from": "cameron@hightower-ai.com",
+    "date": "Fri, 11 Jul 2025 00:04:54 -0700",
+    "snippet": "Hi there! This is a test email from Juniper via the use_service_tool_async function.",
+    "body": "Hi there! This is a test email from Juniper via the use_service_tool_async function.",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "197f84b9728c2950",
+    "subject": "Test from Juniper - Direct Function Call",
+    "from": "cameron@hightower-ai.com",
+    "date": "Fri, 11 Jul 2025 00:03:12 -0700",
+    "snippet": "Hi there! This is a test email from Juniper via direct function call.",
+    "body": "Hi there! This is a test email from Juniper via direct function call.",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "197f842de3ef9f62",
+    "subject": "Test from Juniper - Direct Function Call",
+    "from": "cameron@hightower-ai.com",
+    "date": "Thu, 10 Jul 2025 23:53:41 -0700",
+    "snippet": "Hi there! This is a test email from Juniper via direct function call.",
+    "body": "Hi there! This is a test email from Juniper via direct function call.",
+    "to": "cameron.hightower@proton.me"
+  },
+  {
+    "id": "197f4ce6b6ff9740",
+    "subject": "Email sample",
+    "from": "Cameron Hightower <cameron@hightower-ai.com>",
+    "date": "Thu, 10 Jul 2025 09:47:38 -0500",
+    "snippet": "(Sample Email) Hi Austen, Not sure if we have, but I&#39;ve heard about the awesome program y&#39;all have going on at Gauntlet! CC&#39;ing Ben Lang who works on community at Cursor. Below is a",
+    "body": "(Sample Email)\r\n\r\nHi Austen,\r\n\r\nNot sure if we have, but I've heard about the awesome program y'all have\r\ngoing on at Gauntlet! CC'ing Ben Lang who works on community at Cursor.\r\n\r\nBelow is a tentative event plan:\r\n\r\n   - We are inviting top Cursor powers in Austin (expecting ~50) in both\r\n   tab request and agent request categories to get a good mix of traditional\r\n   and more new age programmers\r\n   - ice breaker and food/drinks (10-15 min)\r\n   - Cursor best practices, tips, MCPs, and workflows (20-45 min)\r\n   - 1 minute startup pitches and project sharing (15 min)\r\n   - networking/co-working (1-2 hours)\r\n\r\nBen can confirm, but I am sure some of your students who are less\r\nexperienced in Cursor are welcome!\r\n\r\nWe are flexible on date and time -- between June 30th an July 14th would be\r\nideal as we'll need some time for prep.  Thanks for your help!\r\n\r\nBest,\r\n\r\nCameron\r\n\r\n512-769-0768\r\n",
+    "to": "Cameron Hightower <cmrnhightower@gmail.com>"
+  }
+]
+useAgentFlowParser.ts:427 Parsed observation JSON: Array(6)
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: Error: Invalid JSON input
+useAgentFlowParser.ts:410 Extracted observation content: Error: Invalid JSON input
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: Error: Invalid JSON input
+useAgentFlowParser.ts:410 Extracted observation content: Error: Invalid JSON input
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: Error: Invalid JSON input
+useAgentFlowParser.ts:410 Extracted observation content: Error: Invalid JSON input
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: Error: Invalid JSON input
+useAgentFlowParser.ts:410 Extracted observation content: Error: Invalid JSON input
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: I've reached my maximum number of actions (5) while working on this task (original request: Observation: Error: Invalid JSON input). I was in the process of executing these actions: store_integration_resource, store_integration_resource, store_integration_resource. My most recent thought was: I will now produce a valid JSON object with all internal quotes properly escaped.. I was not able to complete the request in the max number of turns.
+useAgentFlowParser.ts:410 Extracted observation content: I've reached my maximum number of actions (5) while working on this task (original request: Observation: Error: Invalid JSON input). I was in the process of executing these actions: store_integration_resource, store_integration_resource, store_integration_resource. My most recent thought was: I will now produce a valid JSON object with all internal quotes properly escaped.. I was not able to complete the request in the max number of turns.
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: Successfully created resource: 'user's frequent contacts'
+useAgentFlowParser.ts:410 Extracted observation content: Successfully created resource: 'user's frequent contacts'
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: Successfully stored the integration resource "user's frequent contacts" containing 5 email addresses. The resource has been tagged with Email and Contacts tags and is now available for reference when composing emails or managing contacts.
+useAgentFlowParser.ts:410 Extracted observation content: Successfully stored the integration resource "user's frequent contacts" containing 5 email addresses. The resource has been tagged with Email and Contacts tags and is now available for reference when composing emails or managing contacts.
+useAgentFlowParser.ts:528 Returning parsed step: Object
+useAgentFlowParser.ts:398 Found observation message: Adding observation to messages: Observation: I've reached my maximum number of actions (8) while working on this task (original request: Observation: [
+  {
+    "id": "19802c838f5860b5",
+    "subject": "hi I'm juniper your bff",
+    "from": "cameron@hightower-ai.com",
+    "date": "Sun, 13 Jul 2025 00:55:33 -0700",
+    "snippet": "hi I&#...). I was in the process of executing these actions: fetch_from_cache, call_integration_completion_agent, call_integration_completion_agent. My most recent thought was: The Integration Completion Agent encountered an error with JSON formatting when trying to store the email samples. I should proceed with Step 3 to extract contacts from the fetched emails, and then provide a status update to the chat agent about what has been accomplished and what still needs to be completed.. I was not able to complete the request in the max number of turns.
+useAgentFlowParser.ts:410 Extracted observation content: I've reached my maximum number of actions (8) while working on this task (original request: Observation: [
+  {
+    "id": "19802c838f5860b5",
+    "subject": "hi I'm juniper your bff",
+    "from": "cameron@hightower-ai.com",
+    "date": "Sun, 13 Jul 2025 00:55:33 -0700",
+    "snippet": "hi I&#...). I was in the process of executing these actions: fetch_from_cache, call_integration_completion_agent, call_integration_completion_agent. My most recent thought was: The Integration Completion Agent encountered an error with JSON formatting when trying to store the email samples. I should proceed with Step 3 to extract contacts from the fetched emails, and then provide a status update to the chat agent about what has been accomplished and what still needs to be completed.. I was not able to complete the request in the max number of turns.

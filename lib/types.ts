@@ -111,6 +111,7 @@ export interface AgentConversation {
   start_time: string;
   end_time?: string;
   steps: AgentStep[];
+  entries: LogEntry[];
   summary: {
     total_steps: number;
     agents_involved: string[];
