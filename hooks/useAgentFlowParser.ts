@@ -233,62 +233,136 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
   if (entry.message.includes('Adding observation to messages:')) {
     console.log('Found observation message:', entry.message);
     
-    // Simple approach: find the JSON starting from the first { and ending at the last }
-    const jsonStart = entry.message.indexOf('{');
-    const jsonEnd = entry.message.lastIndexOf('}');
+    // Extract the observation content after "Adding observation to messages:"
+    const observationPrefix = 'Adding observation to messages:';
+    const observationIndex = entry.message.indexOf(observationPrefix);
+    if (observationIndex === -1) return null;
     
-    console.log('JSON positions:', { jsonStart, jsonEnd });
+    const observationContent = entry.message.substring(observationIndex + observationPrefix.length).trim();
     
-    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-      try {
-        const jsonString = entry.message.substring(jsonStart, jsonEnd + 1);
-        console.log('Extracted JSON string:', jsonString);
+    // Remove any "Observation: " prefix that might be there
+    const cleanContent = observationContent.replace(/^Observation:\s*/, '');
+    
+    console.log('Extracted observation content:', cleanContent);
+    
+    // Extract the actual agent name from the entry
+    const actualAgentName = extractActualAgentName(entry.message) || entry.agent_name;
+    const displayAgentName = actualAgentName || 'Agent';
+    
+    // Try to parse as JSON to detect the data structure
+    let parsedObservation = null;
+    let observationText = cleanContent;
+    let structuredData = null;
+    
+    try {
+      // Look for JSON content (could start with [ or {)
+      const jsonMatch = cleanContent.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+      if (jsonMatch) {
+        const jsonString = jsonMatch[1];
+        parsedObservation = JSON.parse(jsonString);
+        console.log('Parsed observation JSON:', parsedObservation);
         
-        const observationData = JSON.parse(jsonString);
-        console.log('Parsed observation data:', observationData);
-        
-        // Extract the actual agent name from the entry
-        const actualAgentName = extractActualAgentName(entry.message) || entry.agent_name;
-        const displayAgentName = actualAgentName || 'Agent';
-        
-        const result: AgentStep = {
-          id: stepId,
-          type: 'agent_response' as const,
-          timestamp: entry.timestamp,
-          agent_name: actualAgentName || entry.agent_name,
-          title: `${displayAgentName} Observation`,
-          content: entry.message,
-          extractedContent: {
-            observation: `Status: ${observationData.status}\nMessage: ${observationData.message}`,
-            observationData: observationData.results ? {
-              results: observationData.results
-            } : undefined
-          },
-          details: {
-            logger: entry.logger,
-            module: entry.module,
-            funcName: entry.funcName,
-            component: entry.component,
-            action: entry.action,
-            pathname: entry.pathname,
-            lineno: entry.lineno,
-            exception: entry.exception,
-            level: entry.level
-          },
-          user_id: entry.user_id,
-          request_id: entry.request_id,
-          status: observationData.status === 'success' ? 'success' : 'error'
-        };
-        
-        console.log('Returning parsed step:', result);
-        return result;
-      } catch (error) {
-        console.warn('Failed to parse observation JSON:', error, 'Raw message:', entry.message);
-        return null;
+        // Handle different data structures
+        if (parsedObservation.status && parsedObservation.message) {
+          // Traditional tool observation format
+          observationText = `Status: ${parsedObservation.status}\nMessage: ${parsedObservation.message}`;
+          structuredData = parsedObservation.results ? {
+            results: parsedObservation.results
+          } : undefined;
+        } else if (Array.isArray(parsedObservation)) {
+          // Array of data - distinguish between database resources and email/external data
+          const count = parsedObservation.length;
+          if (count > 0) {
+            const firstItem = parsedObservation[0];
+            const itemKeys = Object.keys(firstItem);
+            
+            // Check if this looks like database resources (has id, title, content, type fields)
+            const isDatabaseResource = firstItem.id && firstItem.title && firstItem.content && firstItem.type;
+            
+            // Check if this looks like email data (has subject, from, body, etc.)
+            const isEmailData = firstItem.subject || firstItem.from || firstItem.body || firstItem.sender;
+            
+            if (isDatabaseResource) {
+              observationText = `Found ${count} matching resources`;
+              if (firstItem.title) {
+                observationText += `\nFirst resource: "${firstItem.title}"`;
+              }
+              if (count > 1) {
+                observationText += `\n... and ${count - 1} more resources`;
+              }
+            } else if (isEmailData) {
+              observationText = `Retrieved ${count} emails`;
+              if (firstItem.subject) {
+                observationText += `\nFirst email: "${firstItem.subject}"`;
+              }
+              if (count > 1) {
+                observationText += `\n... and ${count - 1} more emails`;
+              }
+            } else {
+              // Generic data items
+              observationText = `Retrieved ${count} items`;
+              if (firstItem.subject) {
+                observationText += `\nFirst item: "${firstItem.subject}"`;
+              } else if (firstItem.title) {
+                observationText += `\nFirst item: "${firstItem.title}"`;
+              } else if (firstItem.name) {
+                observationText += `\nFirst item: "${firstItem.name}"`;
+              }
+              if (count > 1) {
+                observationText += `\n... and ${count - 1} more items`;
+              }
+            }
+          } else {
+            observationText = 'Empty result set';
+          }
+          structuredData = { results: parsedObservation };
+        } else if (typeof parsedObservation === 'object') {
+          // Complex object - show key information
+          const keys = Object.keys(parsedObservation);
+          observationText = `Data object with ${keys.length} fields`;
+          if (keys.length > 0) {
+            observationText += `\nFields: ${keys.slice(0, 5).join(', ')}`;
+            if (keys.length > 5) {
+              observationText += ` ... and ${keys.length - 5} more`;
+            }
+          }
+          structuredData = { results: [parsedObservation] };
+        }
       }
+    } catch (error) {
+      console.log('Could not parse as JSON, treating as plain text');
+      // Keep the original text if JSON parsing fails
     }
-    console.log('No valid JSON found in message');
-    return null;
+    
+    const result: AgentStep = {
+      id: stepId,
+      type: 'agent_response' as const,
+      timestamp: entry.timestamp,
+      agent_name: actualAgentName || entry.agent_name,
+      title: `${displayAgentName} Observation`,
+      content: entry.message,
+      extractedContent: {
+        observation: observationText,
+        observationData: structuredData || undefined
+      },
+      details: {
+        logger: entry.logger,
+        module: entry.module,
+        funcName: entry.funcName,
+        component: entry.component,
+        action: entry.action,
+        pathname: entry.pathname,
+        lineno: entry.lineno,
+        exception: entry.exception,
+        level: entry.level
+      },
+      user_id: entry.user_id,
+      request_id: entry.request_id,
+      status: 'success'
+    };
+    
+    console.log('Returning parsed step:', result);
+    return result;
   }
 
   // Check for resource addition messages

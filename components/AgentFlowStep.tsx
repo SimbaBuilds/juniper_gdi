@@ -350,62 +350,85 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                         {step.extractedContent.observationData?.results && (
                           <div className="mt-3 space-y-3">
                             <div className="font-medium text-sm text-orange-800 dark:text-orange-300 flex items-center gap-2">
-                              <span>📋 Found {step.extractedContent.observationData.results.length} matching resources:</span>
+                              <span>
+                                {step.extractedContent.observationData.results.length > 0 && 
+                                 (step.extractedContent.observationData.results[0].subject || 
+                                  step.extractedContent.observationData.results[0].from || 
+                                  step.extractedContent.observationData.results[0].body) 
+                                  ? `📧 Retrieved ${step.extractedContent.observationData.results.length} emails:`
+                                  : step.extractedContent.observationData.results.length > 0 && 
+                                    (step.extractedContent.observationData.results[0].id && 
+                                     step.extractedContent.observationData.results[0].title && 
+                                     step.extractedContent.observationData.results[0].content && 
+                                     step.extractedContent.observationData.results[0].type)
+                                    ? `📋 Found ${step.extractedContent.observationData.results.length} matching resources:`
+                                    : `📄 Retrieved ${step.extractedContent.observationData.results.length} items:`}
+                              </span>
                             </div>
-                            {step.extractedContent.observationData.results.map((result: any, idx: number) => (
-                              <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                                <div className="flex items-start justify-between mb-3">
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="font-semibold text-sm text-orange-900 dark:text-orange-100 mb-1">
-                                      {result.title}
-                                    </h4>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                                      ID: {result.id}
+                            {step.extractedContent.observationData.results.map((result: any, idx: number) => {
+                              const isEmail = result.subject || result.from || result.body;
+                              const isDatabaseResource = result.id && result.title && result.content && result.type;
+                              
+                              return (
+                                <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                                  <div className="flex items-start justify-between mb-3">
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-semibold text-sm text-orange-900 dark:text-orange-100 mb-1">
+                                        {isEmail ? (result.subject || 'Email') : (result.title || result.name || 'Item')}
+                                      </h4>
+                                      <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                                        {isEmail ? 
+                                          `From: ${result.from || result.sender || 'Unknown'}` : 
+                                          result.id ? `ID: ${result.id}` : ''
+                                        }
+                                      </div>
+                                    </div>
+                                    <div className="flex flex-col gap-1 items-end">
+                                      <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded font-medium">
+                                        {isEmail ? 'Email' : (result.type || 'Data')}
+                                      </span>
+                                      {result.final_score && (
+                                        <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded font-medium">
+                                          {Math.round(result.final_score * 100)}% match
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
-                                  <div className="flex flex-col gap-1 items-end">
-                                    <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded font-medium">
-                                      {result.type}
-                                    </span>
-                                    {result.final_score && (
-                                      <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded font-medium">
-                                        {Math.round(result.final_score * 100)}% match
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                                
-                                <div className="mb-3">
-                                  <div className="font-medium text-xs text-gray-700 dark:text-gray-300 mb-1">Content:</div>
-                                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-900 p-2 rounded">
-                                    {result.content}
-                                  </p>
-                                </div>
-                                
-                                {result.instructions && (
+                                  
                                   <div className="mb-3">
-                                    <div className="font-medium text-xs text-blue-700 dark:text-blue-300 mb-1">Instructions:</div>
-                                    <p className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 p-2 rounded">
-                                      {result.instructions}
+                                    <div className="font-medium text-xs text-gray-700 dark:text-gray-300 mb-1">
+                                      {isEmail ? 'Content:' : 'Content:'}
+                                    </div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-900 p-2 rounded">
+                                      {isEmail ? (result.body || result.content || 'No content') : (result.content || 'No content')}
                                     </p>
                                   </div>
-                                )}
-                                
-                                <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-700">
-                                  <div className="flex gap-4">
-                                    {result.relevance_score && (
-                                      <span>Relevance: {result.relevance_score}%</span>
-                                    )}
-                                    {result.similarity_score && (
-                                      <span>Similarity: {(result.similarity_score * 100).toFixed(1)}%</span>
+                                  
+                                  {result.instructions && (
+                                    <div className="mb-3">
+                                      <div className="font-medium text-xs text-blue-700 dark:text-blue-300 mb-1">Instructions:</div>
+                                      <p className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 p-2 rounded">
+                                        {result.instructions}
+                                      </p>
+                                    </div>
+                                  )}
+                                  
+                                  <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-700">
+                                    <div className="flex gap-4">
+                                      {result.relevance_score && (
+                                        <span>Relevance: {result.relevance_score}%</span>
+                                      )}
+                                      {result.similarity_score && (
+                                        <span>Similarity: {(result.similarity_score * 100).toFixed(1)}%</span>
+                                      )}
+                                    </div>
+                                    {result.last_accessed && (
+                                      <span>Last accessed: {new Date(result.last_accessed).toLocaleDateString()}</span>
                                     )}
                                   </div>
-                                  {result.last_accessed && (
-                                    <span>Last accessed: {new Date(result.last_accessed).toLocaleDateString()}</span>
-                                  )}
                                 </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         )}
                       </div>
