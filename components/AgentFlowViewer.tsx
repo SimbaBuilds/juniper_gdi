@@ -139,7 +139,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
           <TabsContent value="conversations" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Conversations</CardTitle>
+                <CardTitle className="text-lg">Requests</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
@@ -275,7 +275,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
           {selectedConv && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Selected Conversation</CardTitle>
+                <CardTitle className="text-lg">Selected Request</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
