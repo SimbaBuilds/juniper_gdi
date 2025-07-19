@@ -41,7 +41,9 @@ export function useLogStats(entries: LogEntry[]): LogStats {
       }
       
       // Count errors
-      if (entry.level === 'ERROR') {
+      if (entry.level === 'ERROR' || 
+          entry.message.includes('Observation: Error:') ||
+          entry.message.includes('Error:')) {
         errorCount++;
       }
     });

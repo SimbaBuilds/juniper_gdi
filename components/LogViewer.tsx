@@ -9,11 +9,11 @@ import { Upload, FileText, BarChart3, Settings, GitBranch, Moon, Sun } from 'luc
 import { LogEntry } from '@/components/LogEntry';
 import { LogFilters } from '@/components/LogFilters';
 import { LogStats } from '@/components/LogStats';
-import { AgentFlowViewer } from '@/components/AgentFlowViewer';
+import { AgentFlowViewer } from '@/agent_flow_viewer/AgentFlowViewer';
 import { useLogParser } from '@/hooks/useLogParser';
 import { useLogFilter } from '@/hooks/useLogFilter';
 import { useLogStats } from '@/hooks/useLogStats';
-import { useAgentFlowParser } from '@/hooks/useAgentFlowParser';
+import { useAgentFlowParser } from '@/agent_flow_viewer/useAgentFlowParser';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { LogFilterOptions } from '@/lib/types';
 
@@ -43,7 +43,7 @@ export function LogViewer() {
   const { entries, isLoading, error } = useLogParser(logData);
   const { filteredEntries, availableFilters } = useLogFilter(entries, filters);
   const stats = useLogStats(filteredEntries);
-  const { conversations } = useAgentFlowParser(logData);
+  const { requests } = useAgentFlowParser(logData);
 
   const loadAvailableLogFiles = useCallback(async () => {
     setLoadingFiles(true);
@@ -314,7 +314,7 @@ export function LogViewer() {
           </TabsContent>
           
           <TabsContent value="flow">
-            <AgentFlowViewer conversations={conversations} />
+            <AgentFlowViewer requests={requests} />
           </TabsContent>
         </Tabs>
       )}

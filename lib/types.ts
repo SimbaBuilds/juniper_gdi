@@ -105,7 +105,7 @@ export interface AgentStep {
   };
 }
 
-export interface AgentConversation {
+export interface AgentRequest {
   id: string;
   user_id?: string;
   request_id?: string;
@@ -138,9 +138,9 @@ export interface FlowViewOptions {
 }
 
 export interface FlowStats {
-  totalConversations: number;
+  totalRequests: number;
   totalSteps: number;
-  averageStepsPerConversation: number;
+  averageStepsPerRequest: number;
   mostActiveAgent: string;
   totalErrors: number;
   errorRate: number;

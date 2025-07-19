@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LogEntry, AgentConversation, AgentStep } from '@/lib/types';
+import { LogEntry, AgentRequest, AgentStep } from '@/lib/types';
 
 interface AgentResponseContent {
   thought?: string;
@@ -41,13 +41,13 @@ interface AgentResponseContent {
 }
 
 export function useAgentFlowParser(logData: string | null) {
-  const [conversations, setConversations] = useState<AgentConversation[]>([]);
+  const [requests, setRequests] = useState<AgentRequest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!logData) {
-      setConversations([]);
+      setRequests([]);
       return;
     }
 
@@ -68,9 +68,9 @@ export function useAgentFlowParser(logData: string | null) {
         }
       }
 
-      // Convert log entries to agent conversations
-      const parsedConversations = parseAgentConversations(logEntries);
-      setConversations(parsedConversations);
+      // Convert log entries to agent requests
+      const parsedRequests = parseAgentRequests(logEntries);
+      setRequests(parsedRequests);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to parse log data');
     } finally {
@@ -79,223 +79,106 @@ export function useAgentFlowParser(logData: string | null) {
   }, [logData]);
 
   return {
-    conversations,
+    requests,
     isLoading,
     error
   };
 }
 
-function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
-  // Find the boundaries of the main conversation
+function parseAgentRequests(logEntries: LogEntry[]): AgentRequest[] {
+  const requests: AgentRequest[] = [];
   let startIndex = -1;
-  let endIndex = -1;
   
   for (let i = 0; i < logEntries.length; i++) {
     const entry = logEntries[i];
     
-    // Look for authentication successful as start
-    if (startIndex === -1 && entry.message.includes('Authentication successful')) {
+    // Look for authentication successful as start of new request
+    if (entry.message.includes('=== Authentication successful ===')) {
       startIndex = i;
     }
     
-    // Look for request completed as end
-    if (entry.message.includes('Request completed')) {
-      endIndex = i;
-      break;
-    }
-  }
-  
-  // If we found both boundaries, create one main conversation
-  if (startIndex !== -1 && endIndex !== -1) {
-    const conversationMap: Map<string, LogEntry[]> = new Map();
-    
-    // Get the user_id and request_id from entries within the range
-    let mainUserId = 'unknown_user';
-    let mainRequestId = '';
-    
-    for (let i = startIndex; i <= endIndex; i++) {
-      const entry = logEntries[i];
-      if (entry.user_id && mainUserId === 'unknown_user') {
-        mainUserId = entry.user_id;
-      }
-      if (entry.request_id && !mainRequestId) {
-        mainRequestId = entry.request_id;
-      }
-    }
-    
-    const mainConversationId = mainRequestId ? `${mainUserId}_${mainRequestId}` : mainUserId;
-    
-    // Add all entries from start to end to the main conversation
-    conversationMap.set(mainConversationId, logEntries.slice(startIndex, endIndex + 1));
-    
-    // Process any remaining entries before or after the main conversation
-    const remainingEntries = [
-      ...logEntries.slice(0, startIndex),
-      ...logEntries.slice(endIndex + 1)
-    ];
-    
-    remainingEntries.forEach(entry => {
-      const conversationId = entry.user_id || 'unknown_user';
-      if (!conversationMap.has(conversationId)) {
-        conversationMap.set(conversationId, []);
-      }
-      conversationMap.get(conversationId)!.push(entry);
-    });
-    
-    const parsedConversations: AgentConversation[] = [];
-    conversationMap.forEach((entries, conversationId) => {
-      const conversation = {
-        id: conversationId,
-        user_id: entries[0].user_id,
-        request_id: entries[0].request_id,
-        start_time: entries[0].timestamp,
-        end_time: entries[entries.length - 1].timestamp,
-        steps: [] as AgentStep[],
-        entries: entries,
-        summary: {
-          total_steps: 0,
-          agents_involved: [] as string[],
-          tools_used: [] as string[],
-          resources_retrieved: 0,
-          errors: 0
-        }
-      };
-
-      entries.forEach((entry, index) => {
-        const step = convertLogEntryToStep(entry, index);
+    // Look for request completed as end of current request
+    if (startIndex !== -1 && entry.message.includes('Request completed:')) {
+      // Extract entries for this request
+      const requestEntries = logEntries.slice(startIndex, i + 1);
+      
+      if (requestEntries.length > 0) {
+        // Get user_id and request_id from the entries
+        let userId = 'unknown_user';
+        let requestId = '';
         
-        if (step) {
-          conversation.steps.push(step);
-          conversation.end_time = entry.timestamp;
-          
-          // Update summary - don't count action progress steps or resource retrievals as actions
-          if (!step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval') {
-            conversation.summary.total_steps++;
+        for (const requestEntry of requestEntries) {
+          if (requestEntry.user_id && userId === 'unknown_user') {
+            userId = requestEntry.user_id;
           }
-          
-          // Use the extracted agent name from the step (Chat Agent, Config Agent, etc.)
-          if (step.agent_name && !conversation.summary.agents_involved.includes(step.agent_name)) {
-            conversation.summary.agents_involved.push(step.agent_name);
+          if (requestEntry.request_id && !requestId) {
+            requestId = requestEntry.request_id;
           }
-          
-          if (entry.level === 'ERROR') {
-            conversation.summary.errors++;
+        }
+        
+        const requestKey = requestId ? `${userId}_${requestId}` : userId;
+        
+        const request: AgentRequest = {
+          id: requestKey,
+          user_id: userId,
+          request_id: requestId,
+          start_time: requestEntries[0].timestamp,
+          end_time: requestEntries[requestEntries.length - 1].timestamp,
+          steps: [],
+          entries: requestEntries,
+          summary: {
+            total_steps: 0,
+            agents_involved: [],
+            tools_used: [],
+            resources_retrieved: 0,
+            errors: 0
           }
+        };
+
+        // Convert entries to steps
+        requestEntries.forEach((requestEntry, index) => {
+          const step = convertLogEntryToStep(requestEntry, index);
           
-          if (step.type === 'resource_retrieval') {
-            conversation.summary.resources_retrieved++;
-          }
-          
-          if (step.type === 'tool_execution') {
-            const toolName = extractToolName(entry.message);
-            if (toolName && !conversation.summary.tools_used.includes(toolName)) {
-              conversation.summary.tools_used.push(toolName);
+          if (step) {
+            request.steps.push(step);
+            
+            // Update summary
+            if (!step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval') {
+              request.summary.total_steps++;
+            }
+            
+            if (step.agent_name && !request.summary.agents_involved.includes(step.agent_name)) {
+              request.summary.agents_involved.push(step.agent_name);
+            }
+            
+            if (requestEntry.level === 'ERROR' || 
+                requestEntry.message.includes('Observation: Error:') ||
+                requestEntry.message.includes('Error:')) {
+              request.summary.errors++;
+            }
+            
+            if (step.type === 'resource_retrieval') {
+              request.summary.resources_retrieved++;
+            }
+            
+            if (step.type === 'tool_execution') {
+              const toolName = extractToolName(requestEntry.message);
+              if (toolName && !request.summary.tools_used.includes(toolName)) {
+                request.summary.tools_used.push(toolName);
+              }
             }
           }
-        }
-      });
+        });
 
-      parsedConversations.push(conversation);
-    });
-
-    return parsedConversations;
+        requests.push(request);
+      }
+      
+      // Reset for next request
+      startIndex = -1;
+    }
   }
   
-  // Fallback to original grouping logic if boundaries not found
-  const conversationMap: Map<string, LogEntry[]> = new Map();
-  
-  logEntries.forEach(entry => {
-    // Primary grouping by user_id for continuity
-    let conversationId = entry.user_id || 'unknown_user';
-    
-    // If we have a request_id, use it to create sub-conversations within the user
-    if (entry.request_id) {
-      conversationId = `${conversationId}_${entry.request_id}`;
-    }
-    
-    // For entries without request_id but with timestamps close to existing conversations, group them
-    if (!entry.request_id && entry.user_id) {
-      const existingConversations = Array.from(conversationMap.keys()).filter(key => 
-        key.startsWith(entry.user_id as string)
-      );
-      
-      // Find the most recent conversation within 5 minutes
-      for (const convId of existingConversations) {
-        const convEntries = conversationMap.get(convId) || [];
-        const lastEntry = convEntries[convEntries.length - 1];
-        if (lastEntry && lastEntry.timestamp) {
-          const timeDiff = new Date(entry.timestamp).getTime() - new Date(lastEntry.timestamp).getTime();
-          if (Math.abs(timeDiff) < 5 * 60 * 1000) { // 5 minutes
-            conversationId = convId;
-            break;
-          }
-        }
-      }
-    }
-    
-    if (!conversationMap.has(conversationId)) {
-      conversationMap.set(conversationId, []);
-    }
-    conversationMap.get(conversationId)!.push(entry);
-  });
-
-  const parsedConversations: AgentConversation[] = [];
-  conversationMap.forEach((entries, conversationId) => {
-    const conversation = {
-      id: conversationId,
-      user_id: entries[0].user_id,
-      request_id: entries[0].request_id,
-      start_time: entries[0].timestamp,
-      end_time: entries[entries.length - 1].timestamp,
-      steps: [] as AgentStep[],
-      entries: entries,
-      summary: {
-        total_steps: 0,
-        agents_involved: [] as string[],
-        tools_used: [] as string[],
-        resources_retrieved: 0,
-        errors: 0
-      }
-    };
-
-    entries.forEach((entry, index) => {
-      const step = convertLogEntryToStep(entry, index);
-      
-      if (step) {
-        conversation.steps.push(step);
-        conversation.end_time = entry.timestamp;
-        
-        // Update summary - don't count action progress steps or resource retrievals as actions
-        if (!step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval') {
-          conversation.summary.total_steps++;
-        }
-        
-        // Use the extracted agent name from the step (Chat Agent, Config Agent, etc.)
-        if (step.agent_name && !conversation.summary.agents_involved.includes(step.agent_name)) {
-          conversation.summary.agents_involved.push(step.agent_name);
-        }
-        
-        if (entry.level === 'ERROR') {
-          conversation.summary.errors++;
-        }
-        
-        if (step.type === 'resource_retrieval') {
-          conversation.summary.resources_retrieved++;
-        }
-        
-        if (step.type === 'tool_execution') {
-          const toolName = extractToolName(entry.message);
-          if (toolName && !conversation.summary.tools_used.includes(toolName)) {
-            conversation.summary.tools_used.push(toolName);
-          }
-        }
-      }
-    });
-
-    parsedConversations.push(conversation);
-  });
-
-  return parsedConversations;
+  return requests;
 }
 
 function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null {
@@ -703,6 +586,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
   
   // 6. ERRORS - When things go wrong
   else if (entry.level === 'ERROR' || 
+           entry.message.includes('Observation: Error:') ||
            entry.message.toLowerCase().includes('failed') ||
            entry.message.toLowerCase().includes('error')) {
     stepType = 'error';

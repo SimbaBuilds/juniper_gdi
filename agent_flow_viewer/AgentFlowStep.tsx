@@ -357,9 +357,9 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                             <div className="font-medium text-sm text-orange-800 dark:text-orange-300 flex items-center gap-2">
                               <span>
                                 {step.extractedContent.observationData.results.length > 0 && 
-                                 (step.extractedContent.observationData.results[0].subject || 
-                                  step.extractedContent.observationData.results[0].from || 
-                                  step.extractedContent.observationData.results[0].body) 
+                                 (step.extractedContent.observationData.results[0].title || 
+                                  step.extractedContent.observationData.results[0].content || 
+                                  step.extractedContent.observationData.results[0].type) 
                                   ? `📧 Retrieved ${step.extractedContent.observationData.results.length} emails:`
                                   : step.extractedContent.observationData.results.length > 0 && 
                                     (step.extractedContent.observationData.results[0].id && 

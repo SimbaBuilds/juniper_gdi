@@ -64,7 +64,9 @@ export function useLogParser(logData: string | null) {
     }
 
     // Errors and warnings
-    if (entry.level === 'ERROR' || entry.level === 'WARNING') {
+    if (entry.level === 'ERROR' || entry.level === 'WARNING' ||
+        entry.message.includes('Observation: Error:') ||
+        entry.message.includes('Error:')) {
       categories.push('errors_warnings');
     }
 

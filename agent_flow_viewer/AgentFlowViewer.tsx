@@ -5,24 +5,24 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Bot, MessageSquare, Filter } from 'lucide-react';
-import { AgentFlowStep } from '@/components/AgentFlowStep';
-import { AgentConversation, FlowViewOptions } from '@/lib/types';
+import { AgentFlowStep } from '@/agent_flow_viewer/AgentFlowStep';
+import { AgentRequest, FlowViewOptions } from '@/lib/types';
 
 interface AgentFlowViewerProps {
-  conversations: AgentConversation[];
+  requests: AgentRequest[];
 }
 
-export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(
-    conversations.length > 0 ? conversations[0].id : null
+export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
+  const [selectedRequest, setSelectedRequest] = useState<string | null>(
+    requests.length > 0 ? requests[0].id : null
   );
   
-  // Auto-select first conversation when conversations change
+  // Auto-select first request when requests change
   useEffect(() => {
-    if (conversations.length > 0 && !selectedConversation) {
-      setSelectedConversation(conversations[0].id);
+    if (requests.length > 0 && !selectedRequest) {
+      setSelectedRequest(requests[0].id);
     }
-  }, [conversations, selectedConversation]);
+  }, [requests, selectedRequest]);
   
   const [flowOptions, setFlowOptions] = useState<FlowViewOptions>({
     showInitialRequests: true,
@@ -37,8 +37,8 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
     setFlowOptions(prev => ({ ...prev, [key]: value }));
   };
 
-  const getFilteredSteps = (conversation: AgentConversation) => {
-    return conversation.steps.filter(step => {
+  const getFilteredSteps = (request: AgentRequest) => {
+    return request.steps.filter(step => {
       switch (step.type) {
         case 'initial_request':
           return flowOptions.showInitialRequests;
@@ -59,33 +59,33 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
   };
 
   const getFlowStats = () => {
-    const totalSteps = conversations.reduce((sum, conv) => 
+    const totalSteps = requests.reduce((sum, conv) => 
       sum + conv.steps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length, 0
     );
-    const totalErrors = conversations.reduce((sum, conv) => sum + conv.summary.errors, 0);
-    const allAgents = new Set(conversations.flatMap(conv => conv.summary.agents_involved));
-    const allTools = new Set(conversations.flatMap(conv => conv.summary.tools_used));
+    const totalErrors = requests.reduce((sum, conv) => sum + conv.summary.errors, 0);
+    const allAgents = new Set(requests.flatMap(conv => conv.summary.agents_involved));
+    const allTools = new Set(requests.flatMap(conv => conv.summary.tools_used));
     
     return {
-      totalConversations: conversations.length,
+      totalRequests: requests.length,
       totalSteps,
       totalErrors,
       errorRate: totalSteps > 0 ? (totalErrors / totalSteps) * 100 : 0,
       uniqueAgents: allAgents.size,
       uniqueTools: allTools.size,
-      avgStepsPerConv: conversations.length > 0 ? Math.round(totalSteps / conversations.length) : 0
+      avgStepsPerConv: requests.length > 0 ? Math.round(totalSteps / requests.length) : 0
     };
   };
 
   const stats = getFlowStats();
-  const selectedConv = conversations.find(c => c.id === selectedConversation);
+  const selectedConv = requests.find(c => c.id === selectedRequest);
   const filteredSteps = selectedConv ? getFilteredSteps(selectedConv) : [];
 
-  if (conversations.length === 0) {
+  if (requests.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-8">
         <Bot className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
-        <p>No agent conversations found in the log data.</p>
+        <p>No agent requests found in the log data.</p>
       </div>
     );
   }
@@ -97,14 +97,14 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-[640px]">
           <Card className="overflow-x-auto">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{stats.totalConversations}</div>
-              <div className="text-xs text-muted-foreground">Conversations</div>
+              <div className="text-2xl font-bold text-blue-600">{stats.totalRequests}</div>
+              <div className="text-xs text-muted-foreground">Requests</div>
             </CardContent>
           </Card>
           <Card className="overflow-x-auto">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-green-600">{stats.totalSteps}</div>
-              <div className="text-xs text-muted-foreground">Total Actions</div>
+              <div className="text-xs text-muted-foreground">Total Steps</div>
             </CardContent>
           </Card>
           <Card className="overflow-x-auto">
@@ -122,13 +122,13 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
         </div>
       </div>
 
-      {/* Conversations and Filters - moved to top */}
+      {/* Requests and Filters - moved to top */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Tabs defaultValue="conversations" className="w-full min-w-0">
+        <Tabs defaultValue="requests" className="w-full min-w-0">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="conversations" className="text-xs">
+            <TabsTrigger value="requests" className="text-xs">
               <MessageSquare className="w-4 h-4 mr-1" />
-              Conversations
+              Requests
             </TabsTrigger>
             <TabsTrigger value="filters" className="text-xs">
               <Filter className="w-4 h-4 mr-1" />
@@ -136,7 +136,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="conversations" className="mt-4">
+          <TabsContent value="requests" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Requests</CardTitle>
@@ -145,15 +145,15 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 <div className="overflow-x-auto">
                   <ScrollArea className="h-[300px]">
                     <div className="space-y-2" style={{minWidth: '280px'}}>
-                    {conversations.map(conv => (
+                    {requests.map(conv => (
                       <div
                         key={conv.id}
                         className={`p-3 rounded-lg border cursor-pointer transition-colors min-w-0 ${
-                          selectedConversation === conv.id 
+                          selectedRequest === conv.id 
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' 
                             : 'border-border hover:border-border/80'
                         }`}
-                        onClick={() => setSelectedConversation(conv.id)}
+                        onClick={() => setSelectedRequest(conv.id)}
                       >
                         <div className="flex items-center justify-between mb-2 min-w-0 gap-2">
                           <Badge variant="outline" className="text-xs shrink-0">
@@ -281,7 +281,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">
-                      {filteredSteps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length} of {selectedConv.steps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length} actions shown
+                      {filteredSteps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length} of {selectedConv.steps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length} steps shown
                     </Badge>
                     <Badge variant="outline">
                       {selectedConv.summary.agents_involved.length} agents
@@ -340,7 +340,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                   </div>
                 ) : (
                   <div className="text-center text-muted-foreground py-8">
-                    Select a conversation to view its flow.
+                    Select a request to view its flow.
                   </div>
                 )}
               </div>
