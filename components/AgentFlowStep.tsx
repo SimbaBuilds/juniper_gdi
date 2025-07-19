@@ -255,7 +255,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">
-                    {stepNumber}. {formatStepType(step.type)}
+                    {step.type !== 'resource_retrieval' && stepNumber > 0 ? `${stepNumber}. ` : ''}{formatStepType(step.type)}
                     {step.actionNumber && (
                       <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                         {step.actionNumber.current}/{step.actionNumber.total}

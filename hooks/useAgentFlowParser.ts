@@ -168,8 +168,8 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
           conversation.steps.push(step);
           conversation.end_time = entry.timestamp;
           
-          // Update summary - don't count action progress steps
-          if (!step.title.endsWith(' Action Progress')) {
+          // Update summary - don't count action progress steps or resource retrievals as actions
+          if (!step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval') {
             conversation.summary.total_steps++;
           }
           
@@ -265,8 +265,8 @@ function parseAgentConversations(logEntries: LogEntry[]): AgentConversation[] {
         conversation.steps.push(step);
         conversation.end_time = entry.timestamp;
         
-        // Update summary - don't count action progress steps
-        if (!step.title.endsWith(' Action Progress')) {
+        // Update summary - don't count action progress steps or resource retrievals as actions
+        if (!step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval') {
           conversation.summary.total_steps++;
         }
         

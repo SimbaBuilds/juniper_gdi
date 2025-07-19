@@ -60,7 +60,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
 
   const getFlowStats = () => {
     const totalSteps = conversations.reduce((sum, conv) => 
-      sum + conv.steps.filter(step => !step.title.endsWith(' Action Progress')).length, 0
+      sum + conv.steps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length, 0
     );
     const totalErrors = conversations.reduce((sum, conv) => sum + conv.summary.errors, 0);
     const allAgents = new Set(conversations.flatMap(conv => conv.summary.agents_involved));
@@ -104,7 +104,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
           <Card className="overflow-x-auto">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-green-600">{stats.totalSteps}</div>
-              <div className="text-xs text-muted-foreground">Total Steps</div>
+              <div className="text-xs text-muted-foreground">Total Actions</div>
             </CardContent>
           </Card>
           <Card className="overflow-x-auto">
@@ -281,7 +281,7 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">
-                      {filteredSteps.filter(step => !step.title.endsWith(' Action Progress')).length} of {selectedConv.steps.filter(step => !step.title.endsWith(' Action Progress')).length} steps shown
+                      {filteredSteps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length} of {selectedConv.steps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length} actions shown
                     </Badge>
                     <Badge variant="outline">
                       {selectedConv.summary.agents_involved.length} agents
@@ -324,8 +324,10 @@ export function AgentFlowViewer({ conversations }: AgentFlowViewerProps) {
                       </div>
                     ) : (
                       filteredSteps.map((step, index) => {
-                        // Calculate step number excluding action progress steps
-                        const stepNumber = filteredSteps.slice(0, index + 1).filter(s => !s.title.endsWith(' Action Progress')).length;
+                        // Calculate step number excluding action progress steps and resource retrievals
+                        const stepNumber = filteredSteps.slice(0, index + 1).filter(s => 
+                          !s.title.endsWith(' Action Progress') && s.type !== 'resource_retrieval'
+                        ).length;
                         return (
                           <AgentFlowStep
                             key={step.id}
