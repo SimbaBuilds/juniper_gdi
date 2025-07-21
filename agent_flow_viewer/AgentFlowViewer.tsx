@@ -280,7 +280,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
             <div className="overflow-x-auto">
               <div className="space-y-4" style={{minWidth: '280px'}}>
                 <div className="flex items-center justify-between min-w-0 w-full">
-                  <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Initial Requests</label>
+                  <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Initial Request</label>
                   <Switch
                     checked={flowOptions.showInitialRequests}
                     onCheckedChange={(checked) => updateFlowOption('showInitialRequests', checked)}
