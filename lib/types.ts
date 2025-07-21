@@ -129,7 +129,7 @@ export interface FlowViewOptions {
   showResourceRetrievals: boolean;
   showAgentResponses: boolean;
   showErrors: boolean;
-  selectedAgent?: string;
+  selectedAgents: string[]; // Changed from selectedAgent to selectedAgents array
   selectedRequest?: string;
   timeRange?: {
     start?: string;

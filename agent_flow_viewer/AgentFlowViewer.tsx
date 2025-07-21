@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Bot, MessageSquare, Filter } from 'lucide-react';
@@ -30,31 +31,78 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
     showToolExecutions: true,
     showResourceRetrievals: true,
     showAgentResponses: true,
-    showErrors: true
+    showErrors: true,
+    selectedAgents: [] // Initialize empty array for agent filtering
   });
 
-  const updateFlowOption = (key: keyof FlowViewOptions, value: boolean) => {
+  const updateFlowOption = (key: keyof FlowViewOptions, value: boolean | string[]) => {
     setFlowOptions(prev => ({ ...prev, [key]: value }));
   };
 
+  // Get unique agent names from the selected request
+  const getUniqueAgentsForRequest = (request: AgentRequest | undefined): string[] => {
+    if (!request) return [];
+    
+    const agentNames = new Set<string>();
+    
+    // Extract agent names from all steps in the request
+    request.steps.forEach(step => {
+      if (step.agent_name && step.agent_name.trim()) {
+        agentNames.add(step.agent_name.trim());
+      }
+    });
+    
+    // Also include agents from the summary if available
+    request.summary.agents_involved.forEach(agent => {
+      if (agent && agent.trim()) {
+        agentNames.add(agent.trim());
+      }
+    });
+    
+    return Array.from(agentNames).sort();
+  };
+
+  // Reset selected agents when request changes
+  useEffect(() => {
+    if (selectedRequest) {
+      const selectedConv = requests.find(c => c.id === selectedRequest);
+      const uniqueAgents = getUniqueAgentsForRequest(selectedConv);
+      
+      // Reset to show all agents when switching requests
+      setFlowOptions(prev => ({ 
+        ...prev, 
+        selectedAgents: uniqueAgents // Show all agents by default
+      }));
+    }
+  }, [selectedRequest, requests]);
+
   const getFilteredSteps = (request: AgentRequest) => {
     return request.steps.filter(step => {
-      switch (step.type) {
-        case 'initial_request':
-          return flowOptions.showInitialRequests;
-        case 'system_prompt':
-          return flowOptions.showSystemPrompts;
-        case 'tool_execution':
-          return flowOptions.showToolExecutions;
-        case 'resource_retrieval':
-          return flowOptions.showResourceRetrievals;
-        case 'agent_response':
-          return flowOptions.showAgentResponses;
-        case 'error':
-          return flowOptions.showErrors;
-        default:
-          return true;
-      }
+      // Step type filtering
+      const stepTypeMatch = (() => {
+        switch (step.type) {
+          case 'initial_request':
+            return flowOptions.showInitialRequests;
+          case 'system_prompt':
+            return flowOptions.showSystemPrompts;
+          case 'tool_execution':
+            return flowOptions.showToolExecutions;
+          case 'resource_retrieval':
+            return flowOptions.showResourceRetrievals;
+          case 'agent_response':
+            return flowOptions.showAgentResponses;
+          case 'error':
+            return flowOptions.showErrors;
+          default:
+            return true;
+        }
+      })();
+      
+      // Agent name filtering
+      const agentMatch = flowOptions.selectedAgents.length === 0 || 
+                        (step.agent_name && flowOptions.selectedAgents.includes(step.agent_name));
+      
+      return stepTypeMatch && agentMatch;
     });
   };
 
@@ -189,9 +237,43 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
         {/* Filters Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center">
-              <Filter className="w-4 h-4 mr-2" />
-              Flow Filters
+            <CardTitle className="text-lg flex items-center justify-between">
+              <div className="flex items-center">
+                <Filter className="w-4 h-4 mr-2" />
+                Flow Filters
+              </div>
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => {
+                    updateFlowOption('showInitialRequests', true);
+                    updateFlowOption('showSystemPrompts', true);
+                    updateFlowOption('showToolExecutions', true);
+                    updateFlowOption('showResourceRetrievals', true);
+                    updateFlowOption('showAgentResponses', true);
+                    updateFlowOption('showErrors', true);
+                  }}
+                >
+                  All
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => {
+                    updateFlowOption('showInitialRequests', false);
+                    updateFlowOption('showSystemPrompts', false);
+                    updateFlowOption('showToolExecutions', false);
+                    updateFlowOption('showResourceRetrievals', false);
+                    updateFlowOption('showAgentResponses', false);
+                    updateFlowOption('showErrors', false);
+                  }}
+                >
+                  None
+                </Button>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -255,7 +337,65 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                 className="shrink-0 min-w-[44px]"
                 style={{flex: '0 0 auto'}}
               />
-                </div>
+            </div>
+            
+            {/* Agent Filters Section */}
+            {selectedConv && (() => {
+              const uniqueAgents = getUniqueAgentsForRequest(selectedConv);
+              if (uniqueAgents.length > 1) {
+                return (
+                  <>
+                    <div className="border-t pt-4 mt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Filter by Agent</h4>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            onClick={() => updateFlowOption('selectedAgents', uniqueAgents)}
+                          >
+                            All
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            onClick={() => updateFlowOption('selectedAgents', [])}
+                          >
+                            None
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {uniqueAgents.map(agentName => (
+                          <div key={agentName} className="flex items-center justify-between min-w-0 w-full">
+                            <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>
+                              {agentName}
+                            </label>
+                            <Switch
+                              checked={flowOptions.selectedAgents.includes(agentName)}
+                              onCheckedChange={(checked) => {
+                                const currentAgents = flowOptions.selectedAgents;
+                                if (checked) {
+                                  updateFlowOption('selectedAgents', [...currentAgents, agentName]);
+                                } else {
+                                  updateFlowOption('selectedAgents', currentAgents.filter(a => a !== agentName));
+                                }
+                              }}
+                              className="shrink-0 min-w-[44px]"
+                              style={{flex: '0 0 auto'}}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                );
+              }
+              return null;
+            })()}
               </div>
             </div>
           </CardContent>
