@@ -93,7 +93,7 @@ function parseAgentRequests(logEntries: LogEntry[]): AgentRequest[] {
     const entry = logEntries[i];
     
     // Look for authentication successful as start of new request
-    if (entry.message.includes('=== Authentication successful ===')) {
+    if (entry.message.includes('Received chat request:')) {
       startIndex = i;
     }
     
