@@ -122,182 +122,144 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
         </div>
       </div>
 
-      {/* Requests and Filters - moved to top */}
+      {/* Requests and Filters - side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Tabs defaultValue="requests" className="w-full min-w-0">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="requests" className="text-xs">
-              <MessageSquare className="w-4 h-4 mr-1" />
+        {/* Requests Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center">
+              <MessageSquare className="w-4 h-4 mr-2" />
               Requests
-            </TabsTrigger>
-            <TabsTrigger value="filters" className="text-xs">
-              <Filter className="w-4 h-4 mr-1" />
-              Filters
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="requests" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Requests</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <ScrollArea className="h-[300px]">
-                    <div className="space-y-2" style={{minWidth: '280px'}}>
-                    {requests.map(conv => (
-                      <div
-                        key={conv.id}
-                        className={`p-3 rounded-lg border cursor-pointer transition-colors min-w-0 ${
-                          selectedRequest === conv.id 
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' 
-                            : 'border-border hover:border-border/80'
-                        }`}
-                        onClick={() => setSelectedRequest(conv.id)}
-                      >
-                        <div className="flex items-center justify-between mb-2 min-w-0 gap-2">
-                          <Badge variant="outline" className="text-xs shrink-0">
-                            {conv.summary.total_steps} steps
-                          </Badge>
-                          {conv.summary.errors > 0 && (
-                            <Badge variant="destructive" className="text-xs shrink-0">
-                              {conv.summary.errors} errors
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        <div className="text-sm min-w-0">
-                          <div className="font-medium truncate max-w-[220px]">
-                            {conv.request_id || conv.id}
-                          </div>
-                          <div className="text-muted-foreground text-xs mt-1 truncate max-w-[220px]">
-                            {new Date(conv.start_time).toLocaleString()}
-                          </div>
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-1 mt-2 min-w-0 overflow-hidden">
-                          {conv.summary.agents_involved.slice(0, 2).map(agent => (
-                            <Badge key={agent} variant="secondary" className="text-xs truncate max-w-[80px]">
-                              {agent}
-                            </Badge>
-                          ))}
-                          {conv.summary.agents_involved.length > 2 && (
-                            <Badge variant="secondary" className="text-xs shrink-0">
-                              +{conv.summary.agents_involved.length - 2}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="filters" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Flow Filters</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <div className="space-y-4" style={{minWidth: '280px'}}>
-                    <div className="flex items-center justify-between min-w-0 w-full">
-                      <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Initial Requests</label>
-                      <Switch
-                        checked={flowOptions.showInitialRequests}
-                        onCheckedChange={(checked) => updateFlowOption('showInitialRequests', checked)}
-                        className="shrink-0 min-w-[44px]"
-                        style={{flex: '0 0 auto'}}
-                      />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-2" style={{minWidth: '280px'}}>
+                {requests.map(conv => (
+                  <div
+                    key={conv.id}
+                    className={`p-3 rounded-lg border cursor-pointer transition-colors min-w-0 ${
+                      selectedRequest === conv.id 
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' 
+                        : 'border-border hover:border-border/80'
+                    }`}
+                    onClick={() => setSelectedRequest(conv.id)}
+                  >
+                    <div className="flex items-center justify-between mb-2 min-w-0 gap-2">
+                      <Badge variant="outline" className="text-xs shrink-0">
+                        {conv.summary.total_steps} steps
+                      </Badge>
+                      {conv.summary.errors > 0 && (
+                        <Badge variant="destructive" className="text-xs shrink-0">
+                          {conv.summary.errors} errors
+                        </Badge>
+                      )}
                     </div>
                     
-                    <div className="flex items-center justify-between min-w-0 w-full">
-                      <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>System Prompts</label>
-                      <Switch
-                        checked={flowOptions.showSystemPrompts}
-                        onCheckedChange={(checked) => updateFlowOption('showSystemPrompts', checked)}
-                        className="shrink-0 min-w-[44px]"
-                        style={{flex: '0 0 auto'}}
-                      />
+                    <div className="text-sm min-w-0">
+                      <div className="font-medium truncate max-w-[220px]">
+                        {conv.request_id || conv.id}
+                      </div>
+                      <div className="text-muted-foreground text-xs mt-1 truncate max-w-[220px]">
+                        {new Date(conv.start_time).toLocaleString()}
+                      </div>
                     </div>
-                
-                <div className="flex items-center justify-between min-w-0 w-full">
-                  <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Tool Executions</label>
-                  <Switch
-                    checked={flowOptions.showToolExecutions}
-                    onCheckedChange={(checked) => updateFlowOption('showToolExecutions', checked)}
-                    className="shrink-0 min-w-[44px]"
-                    style={{flex: '0 0 auto'}}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between min-w-0 w-full">
-                  <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Resource Retrievals</label>
-                  <Switch
-                    checked={flowOptions.showResourceRetrievals}
-                    onCheckedChange={(checked) => updateFlowOption('showResourceRetrievals', checked)}
-                    className="shrink-0 min-w-[44px]"
-                    style={{flex: '0 0 auto'}}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between min-w-0 w-full">
-                  <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Agent Responses</label>
-                  <Switch
-                    checked={flowOptions.showAgentResponses}
-                    onCheckedChange={(checked) => updateFlowOption('showAgentResponses', checked)}
-                    className="shrink-0 min-w-[44px]"
-                    style={{flex: '0 0 auto'}}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between min-w-0 w-full">
-                  <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Errors</label>
-                  <Switch
-                    checked={flowOptions.showErrors}
-                    onCheckedChange={(checked) => updateFlowOption('showErrors', checked)}
-                    className="shrink-0 min-w-[44px]"
-                    style={{flex: '0 0 auto'}}
-                  />
+                    
+                    <div className="flex flex-wrap gap-1 mt-2 min-w-0 overflow-hidden">
+                      {conv.summary.agents_involved.slice(0, 2).map(agent => (
+                        <Badge key={agent} variant="secondary" className="text-xs truncate max-w-[80px]">
+                          {agent}
+                        </Badge>
+                      ))}
+                      {conv.summary.agents_involved.length > 2 && (
+                        <Badge variant="secondary" className="text-xs shrink-0">
+                          +{conv.summary.agents_involved.length - 2}
+                        </Badge>
+                      )}
                     </div>
                   </div>
+                ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </ScrollArea>
+            </div>
+          </CardContent>
+        </Card>
         
-        {/* Quick actions or additional info can go here */}
-        <div className="flex flex-col justify-center">
-          {selectedConv && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Selected Request</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">
-                      {filteredSteps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length} of {selectedConv.steps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length} steps shown
-                    </Badge>
-                    <Badge variant="outline">
-                      {selectedConv.summary.agents_involved.length} agents
-                    </Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Request ID: {selectedConv.request_id || 'N/A'}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Started: {new Date(selectedConv.start_time).toLocaleString()}
-                  </div>
+        {/* Filters Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center">
+              <Filter className="w-4 h-4 mr-2" />
+              Flow Filters
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <div className="space-y-4" style={{minWidth: '280px'}}>
+                <div className="flex items-center justify-between min-w-0 w-full">
+                  <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Initial Requests</label>
+                  <Switch
+                    checked={flowOptions.showInitialRequests}
+                    onCheckedChange={(checked) => updateFlowOption('showInitialRequests', checked)}
+                    className="shrink-0 min-w-[44px]"
+                    style={{flex: '0 0 auto'}}
+                  />
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                
+                <div className="flex items-center justify-between min-w-0 w-full">
+                  <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>System Prompts</label>
+                  <Switch
+                    checked={flowOptions.showSystemPrompts}
+                    onCheckedChange={(checked) => updateFlowOption('showSystemPrompts', checked)}
+                    className="shrink-0 min-w-[44px]"
+                    style={{flex: '0 0 auto'}}
+                  />
+                </div>
+            
+            <div className="flex items-center justify-between min-w-0 w-full">
+              <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Tool Executions</label>
+              <Switch
+                checked={flowOptions.showToolExecutions}
+                onCheckedChange={(checked) => updateFlowOption('showToolExecutions', checked)}
+                className="shrink-0 min-w-[44px]"
+                style={{flex: '0 0 auto'}}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between min-w-0 w-full">
+              <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Resource Retrievals</label>
+              <Switch
+                checked={flowOptions.showResourceRetrievals}
+                onCheckedChange={(checked) => updateFlowOption('showResourceRetrievals', checked)}
+                className="shrink-0 min-w-[44px]"
+                style={{flex: '0 0 auto'}}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between min-w-0 w-full">
+              <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Agent Responses</label>
+              <Switch
+                checked={flowOptions.showAgentResponses}
+                onCheckedChange={(checked) => updateFlowOption('showAgentResponses', checked)}
+                className="shrink-0 min-w-[44px]"
+                style={{flex: '0 0 auto'}}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between min-w-0 w-full">
+              <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Errors</label>
+              <Switch
+                checked={flowOptions.showErrors}
+                onCheckedChange={(checked) => updateFlowOption('showErrors', checked)}
+                className="shrink-0 min-w-[44px]"
+                style={{flex: '0 0 auto'}}
+              />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Flow View - now takes up full horizontal space */}
