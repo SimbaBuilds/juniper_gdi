@@ -219,7 +219,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                           return (
                             <div className="text-muted-foreground text-xs mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
                               <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Request:</div>
-                              <div className="truncate max-w-[200px]">{initialRequest.content}</div>
+                              <div className="truncate max-w-[500px]">{initialRequest.content}</div>
                             </div>
                           );
                         }
@@ -297,8 +297,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                   <Switch
                     checked={flowOptions.showInitialRequests}
                     onCheckedChange={(checked) => updateFlowOption('showInitialRequests', checked)}
-                    className="shrink-0 min-w-[44px]"
-                    style={{flex: '0 0 auto'}}
+                    className="shrink-0"
                   />
                 </div>
                 
@@ -307,8 +306,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                   <Switch
                     checked={flowOptions.showSystemPrompts}
                     onCheckedChange={(checked) => updateFlowOption('showSystemPrompts', checked)}
-                    className="shrink-0 min-w-[44px]"
-                    style={{flex: '0 0 auto'}}
+                    className="shrink-0"
                   />
                 </div>
             
@@ -317,8 +315,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
               <Switch
                 checked={flowOptions.showToolExecutions}
                 onCheckedChange={(checked) => updateFlowOption('showToolExecutions', checked)}
-                className="shrink-0 min-w-[44px]"
-                style={{flex: '0 0 auto'}}
+                className="shrink-0"
               />
             </div>
             
@@ -327,8 +324,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
               <Switch
                 checked={flowOptions.showResourceRetrievals}
                 onCheckedChange={(checked) => updateFlowOption('showResourceRetrievals', checked)}
-                className="shrink-0 min-w-[44px]"
-                style={{flex: '0 0 auto'}}
+                className="shrink-0"
               />
             </div>
             
@@ -337,8 +333,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
               <Switch
                 checked={flowOptions.showAgentResponses}
                 onCheckedChange={(checked) => updateFlowOption('showAgentResponses', checked)}
-                className="shrink-0 min-w-[44px]"
-                style={{flex: '0 0 auto'}}
+                className="shrink-0"
               />
             </div>
             
@@ -347,8 +342,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
               <Switch
                 checked={flowOptions.showErrors}
                 onCheckedChange={(checked) => updateFlowOption('showErrors', checked)}
-                className="shrink-0 min-w-[44px]"
-                style={{flex: '0 0 auto'}}
+                className="shrink-0"
               />
             </div>
             
@@ -397,8 +391,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                                   updateFlowOption('selectedAgents', currentAgents.filter(a => a !== agentName));
                                 }
                               }}
-                              className="shrink-0 min-w-[44px]"
-                              style={{flex: '0 0 auto'}}
+                              className="shrink-0"
                             />
                           </div>
                         ))}
