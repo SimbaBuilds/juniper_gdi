@@ -14,16 +14,16 @@ interface AgentFlowViewerProps {
 }
 
 export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
-  const [selectedRequest, setSelectedRequest] = useState<string | null>(
-    requests.length > 0 ? requests[0].id : null
-  );
+  const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   
-  // Auto-select first request when requests change
+  // Auto-select first request when requests change or component mounts
   useEffect(() => {
-    if (requests.length > 0 && !selectedRequest) {
+    if (requests.length > 0) {
       setSelectedRequest(requests[0].id);
+    } else {
+      setSelectedRequest(null);
     }
-  }, [requests, selectedRequest]);
+  }, [requests]);
   
   const [flowOptions, setFlowOptions] = useState<FlowViewOptions>({
     showInitialRequests: true,
