@@ -212,6 +212,19 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                       <div className="text-muted-foreground text-xs mt-1 truncate max-w-[220px]">
                         {new Date(conv.start_time).toLocaleString()}
                       </div>
+                      {/* Display initial request message if available */}
+                      {(() => {
+                        const initialRequest = conv.steps.find(step => step.type === 'initial_request');
+                        if (initialRequest?.content) {
+                          return (
+                            <div className="text-muted-foreground text-xs mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+                              <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Request:</div>
+                              <div className="truncate max-w-[200px]">{initialRequest.content}</div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                     
                     <div className="flex flex-wrap gap-1 mt-2 min-w-0 overflow-hidden">
