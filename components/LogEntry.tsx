@@ -52,7 +52,7 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
   };
 
   const getCategories = () => {
-    return (entry as any).categories || [];
+    return (entry as LogEntryType & { categories?: string[] }).categories || [];
   };
 
   const getCategoryColor = (category: string) => {

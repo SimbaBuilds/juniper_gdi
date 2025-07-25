@@ -423,7 +423,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
 
   // 1. TRUE SYSTEM PROMPT: Only include if a dedicated field or clear message
   if (entry.system_prompt || (typeof entry.message === 'string' && entry.message.trim().toLowerCase().startsWith('system prompt:'))) {
-    const promptText = entry.system_prompt || entry.message.replace(/^System Prompt:/i, '').trim();
+    const promptText = (typeof entry.system_prompt === 'string' ? entry.system_prompt : '') || entry.message.replace(/^System Prompt:/i, '').trim();
     const actualAgentName = extractActualAgentName(entry.message);
     const displayAgentName = actualAgentName || entry.agent_name || 'Agent';
     
@@ -606,7 +606,7 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
   if (stepType === 'resource_retrieval') {
     extractedContent = {
       action: entry.message,
-      service_name: entry.service_name
+      service_name: typeof entry.service_name === 'string' ? entry.service_name : undefined
     };
   } else if (stepType === 'tool_execution' && !extractedContent.toolDetails) {
     extractedContent = {

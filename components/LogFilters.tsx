@@ -4,8 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { LogFilterOptions } from '@/lib/types';
 
 interface LogFiltersProps {
@@ -20,7 +19,7 @@ interface LogFiltersProps {
 }
 
 export function LogFilters({ filters, onFiltersChange, availableFilters }: LogFiltersProps) {
-  const updateFilter = (key: keyof LogFilterOptions, value: any) => {
+  const updateFilter = (key: keyof LogFilterOptions, value: string | string[] | boolean | { start?: string; end?: string }) => {
     onFiltersChange({
       ...filters,
       [key]: value

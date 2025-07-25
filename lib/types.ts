@@ -14,7 +14,7 @@ export interface LogEntry {
   request_id?: string;
   exception?: string;
   service_type?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface LogFilterOptions {
@@ -55,7 +55,7 @@ export interface AgentStep {
   agent_name?: string;
   title: string;
   content: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   user_id?: string;
   request_id?: string;
   duration?: number;
@@ -85,7 +85,7 @@ export interface AgentStep {
     toolDetails?: {
       name: string;
       description: string;
-      parameters?: Record<string, any>;
+      parameters?: Record<string, unknown>;
       example?: string;
     };
     observationData?: {

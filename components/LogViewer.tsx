@@ -101,9 +101,9 @@ export function LogViewer() {
     }
   };
 
-  const refreshLogFiles = async () => {
-    await loadAvailableLogFiles();
-  };
+  // const refreshLogFiles = async () => {
+  //   await loadAvailableLogFiles();
+  // };
 
   if (isLoading || loadingFiles) {
     return (

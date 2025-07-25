@@ -166,6 +166,13 @@ const SystemPromptFormatter: React.FC<{ content: string }> = ({ content }) => {
   );
 };
 
+// Helper function to safely render values that might be objects
+const safeRender = (value: any): string => {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && value !== null) return JSON.stringify(value);
+  return String(value || '');
+};
+
 export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNumber }: AgentFlowStepProps) {
   const [expanded, setExpanded] = useState(isExpanded);
 
@@ -274,7 +281,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                   {step.agent_name && (
                     <Badge variant="outline" className="text-xs truncate max-w-[120px] shrink-0">
                       <Bot className="w-3 h-3 mr-1" />
-                      {step.agent_name}
+                      {safeRender(step.agent_name)}
                     </Badge>
                   )}
                 </div>
@@ -294,7 +301,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
         
                   <CardContent className="pt-0 overflow-x-auto">
               <div className="space-y-3 pr-4 min-w-max">
-                <h3 className="font-medium">{step.title}</h3>
+                <h3 className="font-medium">{safeRender(step.title)}</h3>
             
             {/* Special handling for initial requests */}
             {step.type === 'initial_request' ? (
@@ -306,28 +313,28 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                 <div className="space-y-3">
                   <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
                     <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100 mb-2">Message:</div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">{step.content}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{safeRender(step.content)}</p>
                   </div>
                   {step.extractedContent?.requestDetails && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       <div className="bg-white dark:bg-gray-800 p-2 rounded border border-yellow-200 dark:border-yellow-800">
                         <div className="font-medium text-xs text-yellow-800 dark:text-yellow-200">Request ID:</div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 font-mono">{step.extractedContent.requestDetails.requestId}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 font-mono">{safeRender(step.extractedContent.requestDetails.requestId)}</p>
                       </div>
                       <div className="bg-white dark:bg-gray-800 p-2 rounded border border-yellow-200 dark:border-yellow-800">
                         <div className="font-medium text-xs text-yellow-800 dark:text-yellow-200">History Count:</div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">{step.extractedContent.requestDetails.historyCount}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">{safeRender(step.extractedContent.requestDetails.historyCount)}</p>
                       </div>
                       <div className="bg-white dark:bg-gray-800 p-2 rounded border border-yellow-200 dark:border-yellow-800">
                         <div className="font-medium text-xs text-yellow-800 dark:text-yellow-200">Preferences:</div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">{step.extractedContent.requestDetails.preferences}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">{safeRender(step.extractedContent.requestDetails.preferences)}</p>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
             ) : step.type === 'system_prompt' ? (
-              <SystemPromptFormatter content={step.content} />
+              <SystemPromptFormatter content={safeRender(step.content)} />
             ) : (
               <>
                 {/* Show structured content if available */}
@@ -336,21 +343,21 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                     {step.extractedContent.thought && (
                       <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg border-l-4 border-blue-400">
                         <div className="font-medium text-sm text-blue-800 dark:text-blue-300 mb-1">🤔 Thought</div>
-                        <p className="text-sm text-blue-700 dark:text-blue-200">{step.extractedContent.thought}</p>
+                        <p className="text-sm text-blue-700 dark:text-blue-200">{safeRender(step.extractedContent.thought)}</p>
                       </div>
                     )}
                     
                     {step.extractedContent.action && !step.extractedContent.resourceCount && (
                       <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border-l-4 border-green-400">
                         <div className="font-medium text-sm text-green-800 dark:text-green-300 mb-1">⚡ Action</div>
-                        <p className="text-sm text-green-700 dark:text-green-200">{step.extractedContent.action}</p>
+                        <p className="text-sm text-green-700 dark:text-green-200">{safeRender(step.extractedContent.action)}</p>
                       </div>
                     )}
                     
                     {step.extractedContent.observation && (
                       <div className="bg-orange-50 dark:bg-orange-950/30 p-3 rounded-lg border-l-4 border-orange-400">
                         <div className="font-medium text-sm text-orange-800 dark:text-orange-300 mb-1">👁️ Observation</div>
-                        <p className="text-sm text-orange-700 dark:text-orange-200">{step.extractedContent.observation}</p>
+                        <p className="text-sm text-orange-700 dark:text-orange-200">{safeRender(step.extractedContent.observation)}</p>
                         
                         {step.extractedContent.observationData?.results && (
                           <div className="mt-3 space-y-3">
@@ -379,18 +386,18 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                                   <div className="flex items-start justify-between mb-3">
                                     <div className="flex-1 min-w-0">
                                       <h4 className="font-semibold text-sm text-orange-900 dark:text-orange-100 mb-1">
-                                        {isEmail ? (result.subject || 'Email') : (result.title || result.name || 'Item')}
+                                        {isEmail ? (safeRender(result.subject) || 'Email') : (safeRender(result.title) || safeRender(result.name) || 'Item')}
                                       </h4>
                                       <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
                                         {isEmail ? 
-                                          `From: ${result.from || result.sender || 'Unknown'}` : 
-                                          result.id ? `ID: ${result.id}` : ''
+                                          `From: ${safeRender(result.from) || safeRender(result.sender) || 'Unknown'}` : 
+                                          result.id ? `ID: ${safeRender(result.id)}` : ''
                                         }
                                       </div>
                                     </div>
                                     <div className="flex flex-col gap-1 items-end">
                                       <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded font-medium">
-                                        {isEmail ? 'Email' : (result.type || 'Data')}
+                                        {isEmail ? 'Email' : (safeRender(result.type) || 'Data')}
                                       </span>
                                       {result.final_score && (
                                         <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded font-medium">
@@ -405,7 +412,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                                       {isEmail ? 'Content:' : 'Content:'}
                                     </div>
                                     <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-900 p-2 rounded">
-                                      {isEmail ? (result.body || result.content || 'No content') : (result.content || 'No content')}
+                                      {isEmail ? (safeRender(result.body) || safeRender(result.content) || 'No content') : (safeRender(result.content) || 'No content')}
                                     </p>
                                   </div>
                                   
@@ -413,7 +420,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                                     <div className="mb-3">
                                       <div className="font-medium text-xs text-blue-700 dark:text-blue-300 mb-1">Instructions:</div>
                                       <p className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 p-2 rounded">
-                                        {result.instructions}
+                                        {safeRender(result.instructions)}
                                       </p>
                                     </div>
                                   )}
@@ -442,7 +449,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                     {step.extractedContent.response && (
                       <div className="bg-purple-50 dark:bg-purple-950/30 p-3 rounded-lg border-l-4 border-purple-400">
                         <div className="font-medium text-sm text-purple-800 dark:text-purple-300 mb-1">💬 Response</div>
-                        <p className="text-sm text-purple-700 dark:text-purple-200">{step.extractedContent.response}</p>
+                        <p className="text-sm text-purple-700 dark:text-purple-200">{safeRender(step.extractedContent.response)}</p>
                       </div>
                     )}
                   
@@ -458,9 +465,9 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                             {step.extractedContent.associatedResources.map((resource, idx) => (
                               <div key={idx} className="bg-white dark:bg-gray-800 p-2 rounded border">
                                 <div className="flex items-center justify-between mb-1">
-                                  <span className="font-medium text-xs text-green-900 dark:text-green-100">{resource.title}</span>
+                                  <span className="font-medium text-xs text-green-900 dark:text-green-100">{safeRender(resource.title)}</span>
                                 </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">{resource.content}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">{safeRender(resource.content)}</p>
                                 <div className="text-xs text-gray-500 dark:text-gray-400">
                                   <span>ID: {resource.id.slice(0, 8)}...</span>
                                 </div>
@@ -471,7 +478,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                           <div className="mt-2 p-2 bg-white dark:bg-gray-800 rounded border">
                             <span className="font-medium text-xs text-green-800 dark:text-green-200">Resources:</span>
                             <pre className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">
-                              {step.extractedContent.resourceContent}
+                              {safeRender(step.extractedContent.resourceContent)}
                             </pre>
                           </div>
                         )}
@@ -482,8 +489,8 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                       <div className="bg-yellow-50 dark:bg-yellow-950/30 p-3 rounded-lg border-l-4 border-yellow-400">
                         <div className="font-medium text-sm text-yellow-800 dark:text-yellow-300 mb-2">🔧 Tool Details</div>
                         <div className="bg-white dark:bg-gray-800 p-2 rounded border">
-                          <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100 mb-1">{step.extractedContent.toolDetails.name}</div>
-                          <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">{step.extractedContent.toolDetails.description}</p>
+                          <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100 mb-1">{safeRender(step.extractedContent.toolDetails.name)}</div>
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">{safeRender(step.extractedContent.toolDetails.description)}</p>
                           {step.extractedContent.toolDetails.parameters && (
                             <div className="mb-2">
                               <span className="font-medium text-xs text-yellow-800 dark:text-yellow-200">Parameters:</span>
@@ -497,7 +504,7 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                     )}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">{step.content}</p>
+                  <p className="text-sm text-muted-foreground">{safeRender(step.content)}</p>
                 )}
               </>
             )}
@@ -505,63 +512,63 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                             {expanded && step.details && (
                   <div className="mt-4 space-y-3 border-t pt-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                  {step.details.logger && (
+                  {typeof step.details.logger === 'string' && step.details.logger && (
                     <div className="min-w-0">
                       <span className="font-medium">Logger:</span>
-                      <p className="text-muted-foreground truncate max-w-[200px]">{step.details.logger}</p>
+                      <p className="text-muted-foreground truncate max-w-[200px]">{safeRender(step.details.logger)}</p>
                     </div>
                   )}
                   
-                  {step.details.module && (
+                  {typeof step.details.module === 'string' && step.details.module && (
                     <div className="min-w-0">
                       <span className="font-medium">Module:</span>
-                      <p className="text-muted-foreground truncate max-w-[200px]">{step.details.module}</p>
+                      <p className="text-muted-foreground truncate max-w-[200px]">{safeRender(step.details.module)}</p>
                     </div>
                   )}
                   
-                  {step.details.funcName && (
+                  {typeof step.details.funcName === 'string' && step.details.funcName && (
                     <div className="min-w-0">
                       <span className="font-medium">Function:</span>
-                      <p className="text-muted-foreground truncate max-w-[200px]">{step.details.funcName}</p>
+                      <p className="text-muted-foreground truncate max-w-[200px]">{safeRender(step.details.funcName)}</p>
                     </div>
                   )}
                   
-                  {step.details.component && (
+                  {typeof step.details.component === 'string' && step.details.component && (
                     <div className="min-w-0">
                       <span className="font-medium">Component:</span>
-                      <p className="text-muted-foreground truncate max-w-[200px]">{step.details.component}</p>
+                      <p className="text-muted-foreground truncate max-w-[200px]">{safeRender(step.details.component)}</p>
                     </div>
                   )}
                   
-                  {step.details.action && (
+                  {typeof step.details.action === 'string' && step.details.action && (
                     <div className="min-w-0">
                       <span className="font-medium">Action:</span>
-                      <p className="text-muted-foreground truncate max-w-[200px]">{step.details.action}</p>
+                      <p className="text-muted-foreground truncate max-w-[200px]">{safeRender(step.details.action)}</p>
                     </div>
                   )}
                   
                   {step.request_id && (
                     <div>
                       <span className="font-medium">Request ID:</span>
-                      <p className="text-muted-foreground break-all">{step.request_id}</p>
+                      <p className="text-muted-foreground break-all">{safeRender(step.request_id)}</p>
                     </div>
                   )}
                 </div>
                 
-                {step.details.exception && (
+                {typeof step.details.exception === 'string' && step.details.exception && (
                   <div className="mt-4">
                     <span className="font-medium text-red-600">Exception:</span>
                     <pre className="text-xs bg-red-50 p-2 rounded mt-1 overflow-x-auto">
-                      {step.details.exception}
+                      {safeRender(step.details.exception)}
                     </pre>
                   </div>
                 )}
                 
-                {step.details.pathname && (
+                {typeof step.details.pathname === 'string' && step.details.pathname && (
                   <div className="mt-4">
                     <span className="font-medium">Source:</span>
                     <p className="text-xs text-muted-foreground break-all">
-                      {step.details.pathname}:{step.details.lineno}
+                      {safeRender(step.details.pathname)}:{typeof step.details.lineno === 'number' ? step.details.lineno : '?'}
                     </p>
                   </div>
                 )}
