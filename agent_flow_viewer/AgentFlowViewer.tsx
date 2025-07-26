@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Bot, MessageSquare, Filter } from 'lucide-react';
 import { AgentFlowStep } from '@/agent_flow_viewer/AgentFlowStep';
 import { AgentRequest, FlowViewOptions } from '@/lib/types';
+import { ExportButton } from '@/components/ExportButton';
+import { usePDFExport } from '@/hooks/usePDFExport';
 
 interface AgentFlowViewerProps {
   requests: AgentRequest[];
@@ -15,6 +17,8 @@ interface AgentFlowViewerProps {
 
 export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
+  const flowContentRef = useRef<HTMLDivElement>(null);
+  const { exportToPDF, isExporting, error } = usePDFExport();
   
   // Auto-select first request when requests change or component mounts
   useEffect(() => {
@@ -123,6 +127,18 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
       uniqueTools: allTools.size,
       avgStepsPerConv: requests.length > 0 ? Math.round(totalSteps / requests.length) : 0
     };
+  };
+
+  const handleExportPDF = async () => {
+    if (!flowContentRef.current || !selectedConv) {
+      return;
+    }
+
+    try {
+      await exportToPDF(flowContentRef.current, selectedConv, filteredSteps);
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
   };
 
   const stats = getFlowStats();
@@ -414,18 +430,36 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Agent Flow</span>
-              {selectedConv && (
-                <div className="text-sm text-muted-foreground">
-                  {selectedConv.request_id || selectedConv.id}
-                </div>
-              )}
+              <div className="flex items-center gap-3">
+                {selectedConv && (
+                  <>
+                    <ExportButton
+                      onExport={handleExportPDF}
+                      isExporting={isExporting}
+                      disabled={filteredSteps.length === 0}
+                    />
+                    <div className="text-sm text-muted-foreground">
+                      {selectedConv.request_id || selectedConv.id}
+                    </div>
+                  </>
+                )}
+              </div>
             </CardTitle>
+            {error && (
+              <div className="text-sm text-red-600 mt-2">
+                Export failed: {error}
+              </div>
+            )}
           </CardHeader>
           <CardContent className="flex-1 h-0 p-0">
             <ScrollArea className="h-full w-full">
               <div className="px-6 pt-6">
                 {selectedConv ? (
-                  <div className="space-y-4 pb-6 w-max">
+                  <div 
+                    ref={flowContentRef}
+                    data-export-content
+                    className="space-y-4 pb-6 w-max"
+                  >
                     {filteredSteps.length === 0 ? (
                       <div className="text-center text-muted-foreground py-8">
                         No steps match the current filters.
