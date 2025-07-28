@@ -282,20 +282,20 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
             const isEmailData = firstItem.subject || firstItem.from || firstItem.body || firstItem.sender;
             
             if (isDatabaseResource) {
-              observationText = `Found ${count} matching resources`;
+              observationText = `Found ${count} matching items`;
               if (firstItem.title) {
                 observationText += `\nFirst resource: "${firstItem.title}"`;
               }
               if (count > 1) {
-                observationText += `\n... and ${count - 1} more resources`;
+                observationText += `\n... and ${count - 1} more items`;
               }
             } else if (isEmailData) {
-              observationText = `Retrieved ${count} emails`;
+              observationText = `Retrieved ${count} items`;
               if (firstItem.subject) {
                 observationText += `\nFirst email: "${firstItem.subject}"`;
               }
               if (count > 1) {
-                observationText += `\n... and ${count - 1} more emails`;
+                observationText += `\n... and ${count - 1} more items`;
               }
             } else {
               // Generic data items
