@@ -193,6 +193,8 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
         return <Database className="w-5 h-5" />;
       case 'agent_response':
         return <Bot className="w-5 h-5" />;
+      case 'intelligence_change':
+        return <Bot className="w-5 h-5" />;
       case 'error':
         return <AlertTriangle className="w-5 h-5" />;
       default:
@@ -212,6 +214,8 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
         return 'bg-green-100 text-green-800 border-green-200';
       case 'agent_response':
         return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      case 'intelligence_change':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'error':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
@@ -242,6 +246,8 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
         return 'Resource Retrieval';
       case 'agent_response':
         return 'Agent Response';
+      case 'intelligence_change':
+        return 'Intelligence Change';
       case 'error':
         return 'Error';
       default:
@@ -335,6 +341,18 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
               </div>
             ) : step.type === 'system_prompt' ? (
               <SystemPromptFormatter content={safeRender(step.content)} />
+            ) : step.type === 'intelligence_change' ? (
+              <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg border-l-4 border-yellow-400">
+                <div className="font-medium text-sm text-yellow-800 dark:text-yellow-300 mb-3 flex items-center gap-2">
+                  <Bot className="w-4 h-4" />
+                  Intelligence Change
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                    <p className="text-sm text-yellow-700 dark:text-yellow-200">{safeRender(step.extractedContent?.response || step.content)}</p>
+                  </div>
+                </div>
+              </div>
             ) : (
               <>
                 {/* Show structured content if available */}

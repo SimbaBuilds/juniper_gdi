@@ -15,6 +15,13 @@ interface AgentFlowViewerProps {
   requests: AgentRequest[];
 }
 
+function isThoughtStep(step: any): boolean {
+  // A step represents a "Thought" log if it contains structured reasoning with a "Thought:" section
+  // These are the actual LLM reasoning steps that should be counted
+  return step.content?.includes('Thought:') || 
+         (step.extractedContent?.thought && step.extractedContent.thought.trim().length > 0);
+}
+
 export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   const flowContentRef = useRef<HTMLDivElement>(null);
@@ -35,6 +42,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
     showToolExecutions: true,
     showResourceRetrievals: true,
     showAgentResponses: true,
+    showIntelligenceChanges: true,
     showErrors: true,
     selectedAgents: [] // Initialize empty array for agent filtering
   });
@@ -95,6 +103,8 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
             return flowOptions.showResourceRetrievals;
           case 'agent_response':
             return flowOptions.showAgentResponses;
+          case 'intelligence_change':
+            return flowOptions.showIntelligenceChanges;
           case 'error':
             return flowOptions.showErrors;
           default:
@@ -112,7 +122,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
 
   const getFlowStats = () => {
     const totalSteps = requests.reduce((sum, conv) => 
-      sum + conv.steps.filter(step => !step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval').length, 0
+      sum + conv.steps.filter(step => isThoughtStep(step)).length, 0
     );
     const totalErrors = requests.reduce((sum, conv) => sum + conv.summary.errors, 0);
     const allAgents = new Set(requests.flatMap(conv => conv.summary.agents_involved));
@@ -282,6 +292,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                     updateFlowOption('showToolExecutions', true);
                     updateFlowOption('showResourceRetrievals', true);
                     updateFlowOption('showAgentResponses', true);
+                    updateFlowOption('showIntelligenceChanges', true);
                     updateFlowOption('showErrors', true);
                   }}
                 >
@@ -297,6 +308,7 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                     updateFlowOption('showToolExecutions', false);
                     updateFlowOption('showResourceRetrievals', false);
                     updateFlowOption('showAgentResponses', false);
+                    updateFlowOption('showIntelligenceChanges', false);
                     updateFlowOption('showErrors', false);
                   }}
                 >
@@ -349,6 +361,15 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
               <Switch
                 checked={flowOptions.showAgentResponses}
                 onCheckedChange={(checked) => updateFlowOption('showAgentResponses', checked)}
+                className="shrink-0"
+              />
+            </div>
+            
+            <div className="flex items-center justify-between min-w-0 w-full">
+              <label className="text-sm font-medium truncate mr-2 max-w-[150px]" style={{flex: '1 1 0%'}}>Intelligence Changes</label>
+              <Switch
+                checked={flowOptions.showIntelligenceChanges}
+                onCheckedChange={(checked) => updateFlowOption('showIntelligenceChanges', checked)}
                 className="shrink-0"
               />
             </div>
@@ -466,9 +487,9 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                       </div>
                     ) : (
                       filteredSteps.map((step, index) => {
-                        // Calculate step number excluding action progress steps and resource retrievals
+                        // Calculate step number only counting "Thought" logs as actual LLM reasoning steps
                         const stepNumber = filteredSteps.slice(0, index + 1).filter(s => 
-                          !s.title.endsWith(' Action Progress') && s.type !== 'resource_retrieval'
+                          isThoughtStep(s)
                         ).length;
                         return (
                           <AgentFlowStep

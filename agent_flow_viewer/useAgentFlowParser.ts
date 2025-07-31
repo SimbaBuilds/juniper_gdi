@@ -142,8 +142,8 @@ function parseAgentRequests(logEntries: LogEntry[]): AgentRequest[] {
           if (step) {
             request.steps.push(step);
             
-            // Update summary
-            if (!step.title.endsWith(' Action Progress') && step.type !== 'resource_retrieval') {
+            // Update summary - only count steps that contain "Thought:" as actual LLM reasoning steps
+            if (isThoughtStep(step)) {
               request.summary.total_steps++;
             }
             
@@ -181,6 +181,13 @@ function parseAgentRequests(logEntries: LogEntry[]): AgentRequest[] {
   return requests;
 }
 
+function isThoughtStep(step: AgentStep): boolean {
+  // A step represents a "Thought" log if it contains structured reasoning with a "Thought:" section
+  // These are the actual LLM reasoning steps that should be counted
+  return Boolean(step.content?.includes('Thought:')) || 
+         Boolean(step.extractedContent?.thought && step.extractedContent.thought.trim().length > 0);
+}
+
 function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null {
   const stepId = `step_${index}`;
 
@@ -212,6 +219,79 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
           historyCount,
           preferences
         }
+      },
+      actionNumber: null,
+      details: {
+        logger: entry.logger,
+        module: entry.module,
+        funcName: entry.funcName,
+        component: entry.component,
+        action: entry.action,
+        pathname: entry.pathname,
+        lineno: entry.lineno,
+        exception: entry.exception,
+        level: entry.level
+      },
+      user_id: entry.user_id,
+      request_id: entry.request_id,
+      status: 'success'
+    };
+  }
+
+  // Handle "Integration in progress" entries
+  if (entry.message.includes('Integration in progress. Now using model:')) {
+    const modelMatch = entry.message.match(/using model:\s*([^\s]+)\s+for\s+([^$]+)/);
+    const model = modelMatch ? modelMatch[1] : 'Unknown model';
+    const agentType = modelMatch ? modelMatch[2] : 'agent';
+    
+    const actualAgentName = entry.agent_name || 'Integrations Agent';
+    
+    return {
+      id: stepId,
+      type: 'intelligence_change' as const,
+      timestamp: entry.timestamp,
+      agent_name: actualAgentName,
+      title: `${actualAgentName} Integration Started`,
+      content: entry.message,
+      extractedContent: {
+        response: `Integration in progress. Now using model: ${model}`,
+        fullContent: entry.message
+      },
+      actionNumber: null,
+      details: {
+        logger: entry.logger,
+        module: entry.module,
+        funcName: entry.funcName,
+        component: entry.component,
+        action: entry.action,
+        pathname: entry.pathname,
+        lineno: entry.lineno,
+        exception: entry.exception,
+        level: entry.level
+      },
+      user_id: entry.user_id,
+      request_id: entry.request_id,
+      status: 'success'
+    };
+  }
+
+  // Handle "Intelligence upgraded" entries
+  if (entry.message.includes('Intelligence upgraded to level')) {
+    const levelMatch = entry.message.match(/Intelligence upgraded to level\s*(\d+)/);
+    const level = levelMatch ? levelMatch[1] : 'unknown';
+    
+    const actualAgentName = entry.agent_name || 'Agent';
+    
+    return {
+      id: stepId,
+      type: 'intelligence_change' as const,
+      timestamp: entry.timestamp,
+      agent_name: actualAgentName,
+      title: `${actualAgentName} Intelligence Upgrade`,
+      content: entry.message,
+      extractedContent: {
+        response: `Intelligence upgraded to level ${level}`,
+        fullContent: entry.message
       },
       actionNumber: null,
       details: {

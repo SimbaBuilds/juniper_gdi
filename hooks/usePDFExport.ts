@@ -248,6 +248,7 @@ async function addCoverPage(
     'tool_execution': 'Tool Executions',
     'resource_retrieval': 'Resource Retrievals',
     'agent_response': 'Agent Responses',
+    'intelligence_change': 'Intelligence Changes',
     'error': 'Errors'
   };
 

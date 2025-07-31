@@ -50,7 +50,7 @@ export interface LogStats {
 // Agent Flow specific types
 export interface AgentStep {
   id: string;
-  type: 'initial_request' | 'system_prompt' | 'tool_execution' | 'resource_retrieval' | 'agent_response' | 'error';
+  type: 'initial_request' | 'system_prompt' | 'tool_execution' | 'resource_retrieval' | 'agent_response' | 'intelligence_change' | 'error';
   timestamp: string;
   agent_name?: string;
   title: string;
@@ -128,6 +128,7 @@ export interface FlowViewOptions {
   showToolExecutions: boolean;
   showResourceRetrievals: boolean;
   showAgentResponses: boolean;
+  showIntelligenceChanges: boolean;
   showErrors: boolean;
   selectedAgents: string[]; // Changed from selectedAgent to selectedAgents array
   selectedRequest?: string;
