@@ -108,7 +108,7 @@ export function LogViewer() {
   if (isLoading || loadingFiles) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading logs...</div>
+        <div className="text-lg">Loading...</div>
       </div>
     );
   }
