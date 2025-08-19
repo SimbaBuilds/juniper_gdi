@@ -612,11 +612,15 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
   const displayAgentName = actualAgentName || entry.agent_name || 'Agent';
   
   // 1. AGENT MODEL RESPONSES - The core reasoning
-  if (entry.message.includes('model response:') && 
-      (entry.message.includes('Thought:') || entry.message.includes('Action:') || 
-       entry.message.includes('Observation:') || entry.message.includes('Response:'))) {
+  if (entry.message.includes('model response:')) {
     stepType = 'agent_response';
-    title = `${displayAgentName} Reasoning`;
+    // Check if it's structured reasoning or a direct response
+    if (entry.message.includes('Thought:') || entry.message.includes('Action:') || 
+        entry.message.includes('Observation:') || entry.message.includes('Response:')) {
+      title = `${displayAgentName} Reasoning`;
+    } else {
+      title = `${displayAgentName} Response`;
+    }
     content = entry.message;
   }
   
@@ -834,6 +838,18 @@ function extractAgentContent(message: string): AgentResponseContent {
     const observationMatch = content.match(/Observation:\s*([\s\S]*?)$/);
     if (observationMatch) {
       result.observation = observationMatch[1].trim();
+    }
+  }
+
+  // If no structured content was found but this is a model response, treat the entire content as a response
+  if (!result.thought && !result.action && !result.response && !result.observation && 
+      message.includes('model response:')) {
+    // Extract the response content after "model response:"
+    const responseIndex = message.indexOf('model response:');
+    if (responseIndex !== -1) {
+      const responseContent = message.substring(responseIndex + 'model response:'.length).trim();
+      // Clean any newline characters at the start
+      result.response = responseContent.replace(/^\n+/, '');
     }
   }
 
