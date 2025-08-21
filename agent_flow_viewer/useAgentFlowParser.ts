@@ -93,12 +93,14 @@ function parseAgentRequests(logEntries: LogEntry[]): AgentRequest[] {
     const entry = logEntries[i];
     
     // Look for authentication successful as start of new request
-    if (entry.message.includes('Received chat request:')) {
+    if (entry.message.includes('Received chat request:') || 
+        entry.message === '=== TEST SESSION START ===') {
       startIndex = i;
     }
     
     // Look for request completed as end of current request
-    if (startIndex !== -1 && entry.message.includes('Request completed:')) {
+    if (startIndex !== -1 && (entry.message.includes('Request completed:') ||
+        entry.message === '=== TEST SESSION END ===')) {
       // Extract entries for this request
       const requestEntries = logEntries.slice(startIndex, i + 1);
       
