@@ -512,52 +512,10 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     };
   }
 
-  // Handle cache detection messages
+  // Skip redundant cache detection messages since they're handled by the main system prompt display
   if (entry.message.includes('using standard (uncached) system prompt') || 
       entry.message.includes('using CACHED system prompt')) {
-    const actualAgentName = extractActualAgentName(entry.message);
-    const displayAgentName = actualAgentName || entry.agent_name || 'Agent';
-    
-    const isCached = entry.message.includes('CACHED');
-    let totalSections = 0;
-    
-    // Extract section count if present (e.g., "with 3 sections")
-    const sectionMatch = entry.message.match(/with (\d+) sections/);
-    if (sectionMatch) {
-      totalSections = parseInt(sectionMatch[1]);
-    }
-    
-    return {
-      id: stepId,
-      type: 'system_prompt',
-      timestamp: entry.timestamp,
-      agent_name: actualAgentName || entry.agent_name,
-      title: `${displayAgentName} System Prompt ${isCached ? '(Cached)' : '(Uncached)'}`,
-      content: entry.message,
-      extractedContent: { 
-        response: entry.message,
-        systemPrompt: entry.message,
-        systemPromptCache: {
-          isCached,
-          totalSections: totalSections > 0 ? totalSections : undefined
-        }
-      },
-      actionNumber: null,
-      details: {
-        logger: entry.logger,
-        module: entry.module,
-        funcName: entry.funcName,
-        component: entry.component,
-        action: entry.action,
-        pathname: entry.pathname,
-        lineno: entry.lineno,
-        exception: entry.exception,
-        level: entry.level
-      },
-      user_id: entry.user_id,
-      request_id: entry.request_id,
-      status: entry.level === 'ERROR' ? 'error' : 'success'
-    };
+    return null;
   }
 
   // 1. TRUE SYSTEM PROMPT: Only include if a dedicated field or clear message
@@ -1126,6 +1084,7 @@ function parseSystemPromptCache(promptText: string): {
   
   let currentCachedState = false;
   let currentType: string | undefined;
+  let hasSeenCacheMarker = false;
   
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i].trim();
@@ -1138,15 +1097,23 @@ function parseSystemPromptCache(promptText: string): {
       const typeMatch = part.match(/\[CACHED:([^\]]+)\]/);
       currentCachedState = true;
       currentType = typeMatch ? typeMatch[1] : 'cached';
+      hasSeenCacheMarker = true;
       continue;
     } else if (part === '[UNCACHED]') {
       currentCachedState = false;
       currentType = 'uncached';
+      hasSeenCacheMarker = true;
       continue;
     }
     
     // This is content - add it to sections
     if (part.length > 0) {
+      // Skip content at the very beginning before any cache markers 
+      // (this is usually just whitespace or header text that should be ignored)
+      if (!hasSeenCacheMarker) {
+        continue;
+      }
+      
       sections.push({
         content: part,
         cached: currentCachedState,
