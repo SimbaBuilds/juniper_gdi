@@ -68,6 +68,15 @@ export interface AgentStep {
     response?: string;
     fullContent?: string;
     systemPrompt?: string;
+    systemPromptCache?: {
+      isCached: boolean;
+      sections?: {
+        content: string;
+        cached: boolean;
+        type?: string;
+      }[];
+      totalSections?: number;
+    };
     resourceCount?: number;
     resourceContent?: string;
     requestDetails?: {

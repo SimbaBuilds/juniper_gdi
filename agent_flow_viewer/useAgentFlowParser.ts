@@ -8,6 +8,15 @@ interface AgentResponseContent {
   response?: string;
   fullContent?: string;
   systemPrompt?: string;
+  systemPromptCache?: {
+    isCached: boolean;
+    sections?: {
+      content: string;
+      cached: boolean;
+      type?: string;
+    }[];
+    totalSections?: number;
+  };
   service_name?: string;
   associatedResources?: Array<{
     id: string;
@@ -503,11 +512,62 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     };
   }
 
+  // Handle cache detection messages
+  if (entry.message.includes('using standard (uncached) system prompt') || 
+      entry.message.includes('using CACHED system prompt')) {
+    const actualAgentName = extractActualAgentName(entry.message);
+    const displayAgentName = actualAgentName || entry.agent_name || 'Agent';
+    
+    const isCached = entry.message.includes('CACHED');
+    let totalSections = 0;
+    
+    // Extract section count if present (e.g., "with 3 sections")
+    const sectionMatch = entry.message.match(/with (\d+) sections/);
+    if (sectionMatch) {
+      totalSections = parseInt(sectionMatch[1]);
+    }
+    
+    return {
+      id: stepId,
+      type: 'system_prompt',
+      timestamp: entry.timestamp,
+      agent_name: actualAgentName || entry.agent_name,
+      title: `${displayAgentName} System Prompt ${isCached ? '(Cached)' : '(Uncached)'}`,
+      content: entry.message,
+      extractedContent: { 
+        response: entry.message,
+        systemPrompt: entry.message,
+        systemPromptCache: {
+          isCached,
+          totalSections: totalSections > 0 ? totalSections : undefined
+        }
+      },
+      actionNumber: null,
+      details: {
+        logger: entry.logger,
+        module: entry.module,
+        funcName: entry.funcName,
+        component: entry.component,
+        action: entry.action,
+        pathname: entry.pathname,
+        lineno: entry.lineno,
+        exception: entry.exception,
+        level: entry.level
+      },
+      user_id: entry.user_id,
+      request_id: entry.request_id,
+      status: entry.level === 'ERROR' ? 'error' : 'success'
+    };
+  }
+
   // 1. TRUE SYSTEM PROMPT: Only include if a dedicated field or clear message
   if (entry.system_prompt || (typeof entry.message === 'string' && entry.message.trim().toLowerCase().startsWith('system prompt:'))) {
     const promptText = (typeof entry.system_prompt === 'string' ? entry.system_prompt : '') || entry.message.replace(/^System Prompt:/i, '').trim();
     const actualAgentName = extractActualAgentName(entry.message);
     const displayAgentName = actualAgentName || entry.agent_name || 'Agent';
+    
+    // Parse cached sections if present in the prompt text
+    const cacheInfo = parseSystemPromptCache(promptText);
     
     return {
       id: stepId,
@@ -518,7 +578,8 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
       content: promptText,
       extractedContent: { 
         response: promptText,
-        systemPrompt: promptText
+        systemPrompt: promptText,
+        systemPromptCache: cacheInfo
       },
       actionNumber: null,
       details: {
@@ -1029,4 +1090,86 @@ function parseToolDetails(toolText: string): {
   }
 
   return result;
+}
+
+function parseSystemPromptCache(promptText: string): {
+  isCached: boolean;
+  sections?: {
+    content: string;
+    cached: boolean;
+    type?: string;
+  }[];
+  totalSections?: number;
+} | undefined {
+  if (!promptText) return undefined;
+  
+  // Check for cache markers in the prompt
+  const hasCacheMarkers = promptText.includes('[CACHED:') || promptText.includes('[UNCACHED]');
+  
+  if (!hasCacheMarkers) {
+    // No cache markers found - assume fully uncached
+    return {
+      isCached: false,
+      sections: [{
+        content: promptText,
+        cached: false,
+        type: 'full'
+      }],
+      totalSections: 1
+    };
+  }
+  
+  const sections: { content: string; cached: boolean; type?: string; }[] = [];
+  
+  // Split the text into sections based on cache markers
+  const parts = promptText.split(/(\[(?:CACHED:[^\]]+|UNCACHED)\])/);
+  
+  let currentCachedState = false;
+  let currentType: string | undefined;
+  
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i].trim();
+    
+    if (!part) continue;
+    
+    // Check if this part is a cache marker
+    if (part.startsWith('[CACHED:')) {
+      // Extract cache type (e.g., "EPHEMERAL" from "[CACHED:EPHEMERAL]")
+      const typeMatch = part.match(/\[CACHED:([^\]]+)\]/);
+      currentCachedState = true;
+      currentType = typeMatch ? typeMatch[1] : 'cached';
+      continue;
+    } else if (part === '[UNCACHED]') {
+      currentCachedState = false;
+      currentType = 'uncached';
+      continue;
+    }
+    
+    // This is content - add it to sections
+    if (part.length > 0) {
+      sections.push({
+        content: part,
+        cached: currentCachedState,
+        type: currentType
+      });
+    }
+  }
+  
+  // If no sections were parsed, treat the entire prompt as content
+  if (sections.length === 0) {
+    sections.push({
+      content: promptText,
+      cached: false,
+      type: 'full'
+    });
+  }
+  
+  // Determine if overall prompt is cached (has any cached sections)
+  const hasCachedSections = sections.some(section => section.cached);
+  
+  return {
+    isCached: hasCachedSections,
+    sections,
+    totalSections: sections.length
+  };
 }

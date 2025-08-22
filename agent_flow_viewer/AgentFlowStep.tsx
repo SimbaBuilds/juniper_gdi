@@ -13,7 +13,18 @@ interface AgentFlowStepProps {
 }
 
 // System prompt formatter component
-const SystemPromptFormatter: React.FC<{ content: string }> = ({ content }) => {
+const SystemPromptFormatter: React.FC<{ 
+  content: string; 
+  cacheInfo?: {
+    isCached: boolean;
+    sections?: {
+      content: string;
+      cached: boolean;
+      type?: string;
+    }[];
+    totalSections?: number;
+  };
+}> = ({ content, cacheInfo }) => {
   const formatSystemPrompt = (text: string) => {
     // Split by lines and process each section
     const lines = text.split('\n');
@@ -153,11 +164,59 @@ const SystemPromptFormatter: React.FC<{ content: string }> = ({ content }) => {
     return elements;
   };
   
+  // If we have cache info with sections, render them separately
+  if (cacheInfo?.sections && cacheInfo.sections.length > 1) {
+    return (
+      <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg border-l-4 border-purple-400">
+        <div className="font-medium text-sm text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2">
+          <Cog className="w-4 h-4" />
+          System Prompt 
+          {cacheInfo.isCached && (
+            <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded font-medium">
+              Cached ({cacheInfo.totalSections} sections)
+            </span>
+          )}
+        </div>
+        <div className="space-y-3">
+          {cacheInfo.sections.map((section, index) => (
+            <div key={index} className={`p-3 rounded-lg border ${
+              section.cached 
+                ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800'
+                : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+            }`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`text-xs font-medium px-2 py-1 rounded ${
+                  section.cached
+                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                }`}>
+                  {section.cached ? `🟢 Cached` : `⚪ Uncached`}
+                  {section.type && section.type !== 'cached' && section.type !== 'uncached' && (
+                    <span className="ml-1">({section.type})</span>
+                  )}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {formatSystemPrompt(section.content)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Default formatting for uncached or simple prompts
   return (
     <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg border-l-4 border-purple-400">
       <div className="font-medium text-sm text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2">
         <Cog className="w-4 h-4" />
         System Prompt
+        {cacheInfo && !cacheInfo.isCached && (
+          <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded font-medium">
+            Uncached
+          </span>
+        )}
       </div>
       <div className="space-y-2">
         {formatSystemPrompt(content)}
@@ -340,7 +399,10 @@ export function AgentFlowStep({ step, isExpanded = false, onToggleExpand, stepNu
                 </div>
               </div>
             ) : step.type === 'system_prompt' ? (
-              <SystemPromptFormatter content={safeRender(step.content)} />
+              <SystemPromptFormatter 
+                content={safeRender(step.content)} 
+                cacheInfo={step.extractedContent?.systemPromptCache}
+              />
             ) : step.type === 'intelligence_change' ? (
               <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg border-l-4 border-yellow-400">
                 <div className="font-medium text-sm text-yellow-800 dark:text-yellow-300 mb-3 flex items-center gap-2">
