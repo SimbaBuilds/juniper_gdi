@@ -150,7 +150,7 @@ export function LogViewer() {
           <CardContent>
             <div className="text-center py-8">
               <div className="text-sm text-muted-foreground mb-4">
-                Please add .log files to the <code className="bg-muted px-2 py-1 rounded">logs/</code> directory or upload a file
+                Please upload a file
               </div>
               <input
                 type="file"
