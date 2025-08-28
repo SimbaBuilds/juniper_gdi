@@ -664,7 +664,8 @@ function convertLogEntryToStep(entry: LogEntry, index: number): AgentStep | null
     content = entry.message;
   }
   
-  // 3.5. ACTION EXECUTION TRACKING - Action progress messages
+  
+  // 3.6. ACTION EXECUTION TRACKING - Action progress messages
   else if (entry.message.match(/Action\s+\d+\/\d+\s+executed/)) {
     stepType = 'agent_response';
     title = `${displayAgentName} Action Progress`;
@@ -830,6 +831,44 @@ function extractAgentContent(message: string): AgentResponseContent {
     associatedResources: [],
     toolDetails: undefined
   };
+
+  // PRIORITY 1: Try to parse JSON format first (new format)
+  if (message.includes('model response:')) {
+    try {
+      // Look for JSON content in the model response
+      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/(\{[\s\S]*\})/);
+      if (jsonMatch) {
+        const jsonString = jsonMatch[1].trim();
+        const parsedJson = JSON.parse(jsonString);
+        
+        // Handle the new JSON format
+        if (parsedJson.thought) {
+          result.thought = parsedJson.thought;
+        }
+        
+        if (parsedJson.type === 'action' && parsedJson.action) {
+          // Handle action type with nested action object
+          if (typeof parsedJson.action === 'object') {
+            result.action = `${parsedJson.action.name}: ${JSON.stringify(parsedJson.action.parameters || {})}`;
+          } else {
+            result.action = parsedJson.action;
+          }
+        } else if (parsedJson.type === 'response' && parsedJson.response) {
+          // Handle response type
+          result.response = parsedJson.response;
+        }
+        
+        // If we successfully parsed JSON, return early
+        if (result.thought || result.action || result.response) {
+          return result;
+        }
+      }
+    } catch (error) {
+      // JSON parsing failed, continue with text parsing below
+      console.debug('Failed to parse JSON from model response, falling back to text parsing');
+    }
+  }
+
 
   // Parse structured reasoning patterns with improved regex to handle numbered formats
   // Handle both "Thought:" and "1. Thought:" formats, with better multiline support
@@ -1049,6 +1088,7 @@ function parseToolDetails(toolText: string): {
 
   return result;
 }
+
 
 function parseSystemPromptCache(promptText: string): {
   isCached: boolean;
