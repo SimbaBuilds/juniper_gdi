@@ -1,0 +1,1 @@
+Please review the aagent flow viewer parsing, components, and logic.  I want the parser to also be able to support json files like mas_logs_rows.json.  Please come up with a plan for detecting this json content and implementing a parser that integrates with the current agent flow viewer.

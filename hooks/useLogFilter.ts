@@ -46,7 +46,7 @@ export function useLogFilter(entries: LogEntry[], filters: LogFilterOptions) {
           entry.component,
           entry.agent_name,
           entry.action
-        ].filter(Boolean);
+        ].filter(Boolean).filter(field => typeof field === 'string');
 
         const matches = searchFields.some(field => 
           field?.toLowerCase().includes(searchLower)

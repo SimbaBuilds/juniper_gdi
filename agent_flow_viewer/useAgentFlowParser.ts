@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LogEntry, AgentRequest, AgentStep } from '@/lib/types';
+import { LogEntry, AgentRequest, AgentStep, DatabaseLogRow } from '@/lib/types';
 
 interface AgentResponseContent {
   thought?: string;
@@ -49,6 +49,208 @@ interface AgentResponseContent {
   };
 }
 
+// Format detection functions
+function detectDataFormat(data: string): 'ndjson' | 'json-array' | 'unknown' {
+  const trimmed = data.trim();
+
+  // Check if it starts with [ and ends with ] (JSON array)
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return 'json-array';
+      }
+    } catch {
+      // Fall through to other checks
+    }
+  }
+
+  // Check if it looks like NDJSON (multiple lines, each starting with {)
+  const lines = trimmed.split('\n').filter(line => line.trim());
+  if (lines.length > 0 && lines.every(line => line.trim().startsWith('{'))) {
+    return 'ndjson';
+  }
+
+  return 'unknown';
+}
+
+function parseJSONArrayData(data: DatabaseLogRow[]): AgentRequest[] {
+  const requests: AgentRequest[] = [];
+
+  // Group rows by request_id
+  const requestGroups = new Map<string, DatabaseLogRow[]>();
+
+  data.forEach(row => {
+    if (!requestGroups.has(row.request_id)) {
+      requestGroups.set(row.request_id, []);
+    }
+    requestGroups.get(row.request_id)!.push(row);
+  });
+
+  // Convert each group to AgentRequest
+  requestGroups.forEach((rows, requestId) => {
+    // Sort by turn and idx to ensure proper ordering
+    rows.sort((a, b) => {
+      if (a.turn !== b.turn) return a.turn - b.turn;
+      return a.idx - b.idx;
+    });
+
+    const request: AgentRequest = {
+      id: requestId,
+      user_id: rows[0]?.user_id,
+      request_id: requestId,
+      start_time: rows[0]?.created_at,
+      end_time: rows[rows.length - 1]?.created_at,
+      steps: [],
+      entries: [], // Empty for JSON array format
+      summary: {
+        total_steps: 0,
+        agents_involved: [],
+        tools_used: [],
+        resources_retrieved: 0,
+        errors: 0
+      }
+    };
+
+    // Convert each row to AgentStep
+    rows.forEach((row, index) => {
+      const step = convertDatabaseRowToStep(row, index);
+      if (step) {
+        request.steps.push(step);
+
+        // Update summary
+        if (row.type === 'thought') {
+          request.summary.total_steps++;
+        }
+
+        if (row.agent_name && !request.summary.agents_involved.includes(row.agent_name)) {
+          request.summary.agents_involved.push(row.agent_name);
+        }
+
+        if (row.action_name && !request.summary.tools_used.includes(row.action_name)) {
+          request.summary.tools_used.push(row.action_name);
+        }
+      }
+    });
+
+    requests.push(request);
+  });
+
+  return requests;
+}
+
+function convertDatabaseRowToStep(row: DatabaseLogRow, index: number): AgentStep | null {
+  const stepId = `step_${row.id}`;
+
+  // Map database types to UI types
+  let stepType: AgentStep['type'];
+  let title: string;
+
+  switch (row.type) {
+    case 'thought':
+      stepType = 'agent_response';
+      title = `${row.agent_name} Thought`;
+      break;
+    case 'action':
+      stepType = row.action_name ? 'tool_execution' : 'agent_response';
+      title = row.action_name ? `${row.agent_name} Action: ${row.action_name}` : `${row.agent_name} Action`;
+      break;
+    case 'observation':
+      stepType = 'agent_response';
+      title = `${row.agent_name} Observation`;
+      break;
+    case 'response':
+      stepType = 'agent_response';
+      title = `${row.agent_name} Response`;
+      break;
+    default:
+      return null;
+  }
+
+  // Parse action parameters if available
+  let actionParams = null;
+  if (row.action_params) {
+    try {
+      actionParams = JSON.parse(row.action_params);
+    } catch {
+      actionParams = row.action_params;
+    }
+  }
+
+  // Parse metadata if available
+  let metadata = null;
+  if (row.metadata && row.metadata !== '{}') {
+    try {
+      metadata = JSON.parse(row.metadata);
+    } catch {
+      metadata = row.metadata;
+    }
+  }
+
+  // Build extracted content based on type
+  const extractedContent: any = {
+    fullContent: row.content
+  };
+
+  switch (row.type) {
+    case 'thought':
+      extractedContent.thought = row.content;
+      break;
+    case 'action':
+      extractedContent.action = row.action_name || row.content;
+      if (actionParams) {
+        extractedContent.toolDetails = {
+          name: row.action_name || 'Unknown Action',
+          description: row.content,
+          parameters: actionParams
+        };
+      }
+      break;
+    case 'observation':
+      extractedContent.observation = row.content;
+      // Try to parse structured observation data
+      if (row.content.startsWith('[') || row.content.startsWith('{')) {
+        try {
+          const parsed = JSON.parse(row.content);
+          if (Array.isArray(parsed)) {
+            extractedContent.observationData = { results: parsed };
+          } else if (typeof parsed === 'object') {
+            extractedContent.observationData = { results: [parsed] };
+          }
+        } catch {
+          // Keep as text if parsing fails
+        }
+      }
+      break;
+    case 'response':
+      extractedContent.response = row.content;
+      break;
+  }
+
+  return {
+    id: stepId,
+    type: stepType,
+    timestamp: row.created_at,
+    agent_name: row.agent_name,
+    title,
+    content: row.content,
+    extractedContent,
+    actionNumber: null, // Could be derived from turn if needed
+    details: {
+      model: row.model,
+      turn: row.turn,
+      action_name: row.action_name,
+      action_params: actionParams,
+      metadata: metadata,
+      database_id: row.id,
+      idx: row.idx
+    },
+    user_id: row.user_id,
+    request_id: row.request_id,
+    status: 'success'
+  };
+}
+
 export function useAgentFlowParser(logData: string | null) {
   const [requests, setRequests] = useState<AgentRequest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,22 +266,35 @@ export function useAgentFlowParser(logData: string | null) {
     setError(null);
 
     try {
-      const lines = logData.split('\n').filter(line => line.trim());
-      const logEntries: LogEntry[] = [];
+      // Detect data format
+      const format = detectDataFormat(logData);
 
-      // Parse JSON log entries
-      for (const line of lines) {
-        try {
-          const entry = JSON.parse(line) as LogEntry;
-          logEntries.push(entry);
-        } catch {
-          console.warn('Failed to parse log line:', line);
+      if (format === 'json-array') {
+        // Parse as JSON array (database format)
+        const jsonData = JSON.parse(logData) as DatabaseLogRow[];
+        const parsedRequests = parseJSONArrayData(jsonData);
+        setRequests(parsedRequests);
+      } else if (format === 'ndjson') {
+        // Parse as NDJSON (original log format)
+        const lines = logData.split('\n').filter(line => line.trim());
+        const logEntries: LogEntry[] = [];
+
+        // Parse JSON log entries
+        for (const line of lines) {
+          try {
+            const entry = JSON.parse(line) as LogEntry;
+            logEntries.push(entry);
+          } catch {
+            console.warn('Failed to parse log line:', line);
+          }
         }
-      }
 
-      // Convert log entries to agent requests
-      const parsedRequests = parseAgentRequests(logEntries);
-      setRequests(parsedRequests);
+        // Convert log entries to agent requests
+        const parsedRequests = parseAgentRequests(logEntries);
+        setRequests(parsedRequests);
+      } else {
+        throw new Error('Unsupported data format. Expected NDJSON or JSON array.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to parse log data');
     } finally {

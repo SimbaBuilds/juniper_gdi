@@ -40,7 +40,7 @@ export function LogViewer() {
     showErrors: true
   });
 
-  const { entries, isLoading, error } = useLogParser(logData);
+  const { entries, isLoading, error, dataFormat, formatMessage } = useLogParser(logData);
   const { filteredEntries, availableFilters } = useLogFilter(entries, filters);
   const stats = useLogStats(filteredEntries);
   const { requests } = useAgentFlowParser(logData);
@@ -71,6 +71,13 @@ export function LogViewer() {
   useEffect(() => {
     loadAvailableLogFiles();
   }, [loadAvailableLogFiles]);
+
+  // Auto-switch to Agent Flow tab when JSON array is detected
+  useEffect(() => {
+    if (dataFormat === 'json-array' && mainTab !== 'flow') {
+      setMainTab('flow');
+    }
+  }, [dataFormat, mainTab]);
 
   const loadLogFile = async (filename: string) => {
     try {
@@ -113,7 +120,8 @@ export function LogViewer() {
     );
   }
 
-  if (error) {
+  // Only show blocking error for critical parsing errors, not format mismatches
+  if (error && !dataFormat) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-lg text-red-600">Error: {error}</div>
@@ -297,7 +305,18 @@ export function LogViewer() {
                       <div className="space-y-2">
                         {filteredEntries.length === 0 ? (
                           <div className="text-center text-muted-foreground py-8">
-                            No log entries match the current filters.
+                            {formatMessage || 'No log entries match the current filters.'}
+                            {dataFormat === 'json-array' && (
+                              <div className="mt-4 text-center">
+                                <Button
+                                  onClick={() => setMainTab('flow')}
+                                  variant="outline"
+                                  className="mt-2"
+                                >
+                                  Go to Agent Flow Tab
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         ) : (
                           filteredEntries.map((entry, index) => (

@@ -116,7 +116,7 @@ export function LogEntry({ entry, isExpanded = false, onToggleExpand }: LogEntry
         <div className="space-y-2">
           <div className="flex items-start gap-2">
             <span className="text-sm font-medium">Message:</span>
-            <span className="text-sm flex-1">{entry.message}</span>
+            <span className="text-sm flex-1">{entry.message || 'No message content'}</span>
           </div>
           
           <div className="flex items-center gap-4 text-xs text-muted-foreground">

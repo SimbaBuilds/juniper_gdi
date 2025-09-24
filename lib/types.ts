@@ -131,6 +131,23 @@ export interface AgentRequest {
   };
 }
 
+// Database row format for JSON array files (like mas_logs_rows.json)
+export interface DatabaseLogRow {
+  idx: number;
+  id: string;
+  request_id: string;
+  user_id: string;
+  type: 'thought' | 'action' | 'observation' | 'response';
+  turn: number;
+  agent_name: string;
+  content: string;
+  model: string;
+  action_name: string | null;
+  action_params: string | null;
+  metadata: string;
+  created_at: string;
+}
+
 export interface FlowViewOptions {
   showInitialRequests: boolean;
   showSystemPrompts: boolean;
