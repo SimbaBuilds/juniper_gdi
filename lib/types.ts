@@ -137,7 +137,7 @@ export interface DatabaseLogRow {
   id: string;
   request_id: string;
   user_id: string;
-  type: 'thought' | 'action' | 'observation' | 'response';
+  type: 'thought' | 'action' | 'observation' | 'response' | 'user_request';
   turn: number;
   agent_name: string;
   content: string;

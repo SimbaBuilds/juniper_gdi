@@ -89,8 +89,13 @@ function parseJSONArrayData(data: DatabaseLogRow[]): AgentRequest[] {
 
   // Convert each group to AgentRequest
   requestGroups.forEach((rows, requestId) => {
-    // Sort by turn and idx to ensure proper ordering
+    // Sort with user_request first, then by turn and idx
     rows.sort((a, b) => {
+      // user_request always comes first
+      if (a.type === 'user_request' && b.type !== 'user_request') return -1;
+      if (a.type !== 'user_request' && b.type === 'user_request') return 1;
+
+      // For non-user_request types, sort by turn then idx
       if (a.turn !== b.turn) return a.turn - b.turn;
       return a.idx - b.idx;
     });
@@ -147,6 +152,10 @@ function convertDatabaseRowToStep(row: DatabaseLogRow, index: number): AgentStep
   let title: string;
 
   switch (row.type) {
+    case 'user_request':
+      stepType = 'initial_request';
+      title = 'User Request';
+      break;
     case 'thought':
       stepType = 'agent_response';
       title = `${row.agent_name} Thought`;
@@ -193,6 +202,9 @@ function convertDatabaseRowToStep(row: DatabaseLogRow, index: number): AgentStep
   };
 
   switch (row.type) {
+    case 'user_request':
+      extractedContent.response = row.content;
+      break;
     case 'thought':
       extractedContent.thought = row.content;
       break;
@@ -231,7 +243,7 @@ function convertDatabaseRowToStep(row: DatabaseLogRow, index: number): AgentStep
     id: stepId,
     type: stepType,
     timestamp: row.created_at,
-    agent_name: row.agent_name,
+    agent_name: row.type === 'user_request' ? 'User' : row.agent_name,
     title,
     content: row.content,
     extractedContent,
