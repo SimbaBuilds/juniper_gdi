@@ -254,8 +254,8 @@ export function AgentFlowViewer({ requests }: AgentFlowViewerProps) {
                     </div>
                     
                     <div className="flex flex-wrap gap-1 mt-2 min-w-0 overflow-hidden">
-                      {conv.summary.agents_involved.slice(0, 2).map(agent => (
-                        <Badge key={agent} variant="secondary" className="text-xs truncate max-w-[80px]">
+                      {conv.summary.agents_involved.slice(0, 2).map((agent, idx) => (
+                        <Badge key={`${conv.id}-agent-${idx}`} variant="secondary" className="text-xs truncate max-w-[80px]">
                           {agent}
                         </Badge>
                       ))}

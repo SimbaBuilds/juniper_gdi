@@ -1,15 +1,23 @@
 import { useState, useEffect } from 'react';
 import { LogEntry } from '@/lib/types';
 
-// Format detection function (reused from useAgentFlowParser)
-function detectDataFormat(data: string): 'ndjson' | 'json-array' | 'unknown' {
+// Format detection function - distinguishes between different JSON array types
+function detectDataFormat(data: string): 'ndjson' | 'json-array' | 'conversation' | 'unknown' {
   const trimmed = data.trim();
 
   // Check if it starts with [ and ends with ] (JSON array)
   if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
     try {
       const parsed = JSON.parse(trimmed);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const firstItem = parsed[0];
+
+        // Check if it's conversation data (has conversation_id and role fields)
+        if (firstItem.conversation_id && firstItem.role) {
+          return 'conversation';
+        }
+
+        // Otherwise, it's agent flow data (has request_id, turn, type fields)
         return 'json-array';
       }
     } catch {
@@ -30,7 +38,7 @@ export function useLogParser(logData: string | null) {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dataFormat, setDataFormat] = useState<'ndjson' | 'json-array' | 'unknown' | null>(null);
+  const [dataFormat, setDataFormat] = useState<'ndjson' | 'json-array' | 'conversation' | 'unknown' | null>(null);
   const [formatMessage, setFormatMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,6 +62,10 @@ export function useLogParser(logData: string | null) {
         // Return empty array but provide helpful info instead of error
         setEntries([]);
         setFormatMessage('This file contains agent flow data. Please use the "Agent Flow" tab to view this content.');
+      } else if (format === 'conversation') {
+        // Conversation data is meant for the conversation tab, not the logs tab
+        setEntries([]);
+        setFormatMessage('This file contains conversation data. Please use the "Conversations" tab to view this content.');
       } else if (format === 'ndjson') {
         // Parse NDJSON format (original logs)
         const lines = logData.split('\n').filter(line => line.trim());

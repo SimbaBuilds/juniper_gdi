@@ -178,3 +178,27 @@ export interface FlowStats {
     duration: string;
   };
 }
+
+// Conversation viewer types
+export interface ConversationMessage {
+  idx: number;
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  audio_url: string | null;
+  transcription_confidence: number | null;
+  tool_calls: string | null;
+  metadata: string;
+  created_at: string;
+}
+
+export interface Conversation {
+  id: string; // conversation_id
+  messages: ConversationMessage[];
+  user_id: string;
+  start_time: string;
+  end_time: string;
+  message_count: number;
+}

@@ -5,15 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, FileText, BarChart3, Settings, GitBranch, Moon, Sun } from 'lucide-react';
+import { Upload, FileText, BarChart3, Settings, GitBranch, Moon, Sun, MessageSquare } from 'lucide-react';
 import { LogEntry } from '@/components/LogEntry';
 import { LogFilters } from '@/components/LogFilters';
 import { LogStats } from '@/components/LogStats';
 import { AgentFlowViewer } from '@/agent_flow_viewer/AgentFlowViewer';
+import { ConversationViewer } from '@/components/ConversationViewer';
 import { useLogParser } from '@/hooks/useLogParser';
 import { useLogFilter } from '@/hooks/useLogFilter';
 import { useLogStats } from '@/hooks/useLogStats';
 import { useAgentFlowParser } from '@/agent_flow_viewer/useAgentFlowParser';
+import { useConversationParser } from '@/hooks/useConversationParser';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { LogFilterOptions } from '@/lib/types';
 
@@ -44,6 +46,7 @@ export function LogViewer() {
   const { filteredEntries, availableFilters } = useLogFilter(entries, filters);
   const stats = useLogStats(filteredEntries);
   const { requests } = useAgentFlowParser(logData);
+  const { conversations } = useConversationParser(logData);
 
   const loadAvailableLogFiles = useCallback(async () => {
     setLoadingFiles(true);
@@ -72,10 +75,12 @@ export function LogViewer() {
     loadAvailableLogFiles();
   }, [loadAvailableLogFiles]);
 
-  // Auto-switch to Agent Flow tab when JSON array is detected
+  // Auto-switch tabs based on detected format
   useEffect(() => {
     if (dataFormat === 'json-array' && mainTab !== 'flow') {
       setMainTab('flow');
+    } else if (dataFormat === 'conversation' && mainTab !== 'conversations') {
+      setMainTab('conversations');
     }
   }, [dataFormat, mainTab]);
 
@@ -240,7 +245,7 @@ export function LogViewer() {
 
       {logData && (
         <Tabs value={mainTab} onValueChange={setMainTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Raw Log View
@@ -248,6 +253,10 @@ export function LogViewer() {
             <TabsTrigger value="flow" className="flex items-center gap-2">
               <GitBranch className="w-4 h-4" />
               Agent Flow
+            </TabsTrigger>
+            <TabsTrigger value="conversations" className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Conversations
             </TabsTrigger>
           </TabsList>
           
@@ -333,6 +342,10 @@ export function LogViewer() {
           
           <TabsContent value="flow">
             <AgentFlowViewer requests={requests} />
+          </TabsContent>
+
+          <TabsContent value="conversations">
+            <ConversationViewer conversations={conversations} />
           </TabsContent>
         </Tabs>
       )}
